@@ -1,0 +1,8 @@
+node_modules/
+package-lock.json
+dist/
+
+/src/generated/prisma
+
+/src/generated/prisma
+/src/config/firebase/service-account.json

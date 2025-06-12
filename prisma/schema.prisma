@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model admin {
+  admin_id        String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  username        String     @db.VarChar(255) @unique
+  hashed_password String     @db.VarChar(255)
+  articles        articles[]
+}
+
+model articles {
+  articles_id    String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  content        String          @db.VarChar(255)
+  image_url      String?         @db.VarChar(255)
+  published_date DateTime?       @default(now()) @db.Date
+  admin_id       String?         @db.Uuid
+  category_id    String?         @db.Uuid
+  title          String          @db.VarChar(255)
+  admin          admin?          @relation(fields: [admin_id], references: [admin_id], onUpdate: NoAction, map: "fk_admin")
+  category       category?       @relation(fields: [category_id], references: [category_id], onUpdate: NoAction, map: "fk_category")
+
+  @@index([admin_id], map: "idx_articles_admin")
+  @@index([category_id], map: "idx_articles_category")
+  @@index([published_date], map: "idx_articles_published_date")
+}
+
+model category {
+  category_id String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String     @db.VarChar(255)
+  articles    articles[]
+}
+
+model guru{
+  guru_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name String @db.VarChar(255)
+  jabatan String @db.VarChar(255)
+}
