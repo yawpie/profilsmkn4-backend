@@ -1,13 +1,22 @@
 import { Router, Request, Response } from "express";
-import { ArticleRequest, AuthRequest, authToken } from "../../middleware/authMiddleware";
+import { chechAuthWithCookie } from "../../middleware/authMiddleware";
+import { AuthRequest } from "../../types/auth";
 import { prisma } from "../../config/database/prisma";
 import { upload } from "../../middleware/uploadMiddleware";
 import { bucket } from "../../config/firebase/firebase";
 import GeneralResponse from "../../utils/generalResponse";
+import { checkCategoryId } from "../../middleware/checkCategoryIdMiddleware";
+import { CategoryRequest } from "../../types/category";
 
 const router: Router = Router();
 
-router.post("/", authToken, upload.single("image"), async (req: AuthRequest, res: Response) => {
+router.post("/", chechAuthWithCookie, upload.single("image"), checkCategoryId, async (req: CategoryRequest, res: Response) => {
+    console.log("category: ", req.category);
+    console.log("body: ", req.body);
+    console.log("file: ", req.file);
+    const category_id = req.body.category_id;
+    console.log("typeof category_id:", typeof category_id, "value:", category_id);
+
 
     try {
         if (!req.admin?.adminId) {
@@ -31,6 +40,8 @@ router.post("/", authToken, upload.single("image"), async (req: AuthRequest, res
             });
 
             imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+        } else {
+            throw new Error("Image is required");
         }
 
         const article = await prisma.articles.create({

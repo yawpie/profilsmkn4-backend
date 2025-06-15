@@ -6,7 +6,7 @@ import * as fs from "fs";
 
 // Load the service account JSON
 const serviceAccount = JSON.parse(
-  fs.readFileSync(path.join(process.cwd(), "service-account.json"), "utf8")
+  fs.readFileSync(path.join(process.cwd(), "./src/config/firebase/service-account.json"), "utf8")
 );
 
 initializeApp({

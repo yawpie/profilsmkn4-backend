@@ -2,7 +2,7 @@ class GeneralResponse<T = object> {
     success: boolean = true;
     message: string = "";
     data: T | null = null;
-    error? : unknown;
+    error?: unknown;
 
     public static defaultResponse(): GeneralResponse {
         return new GeneralResponse().setMessage("success");
@@ -15,9 +15,9 @@ class GeneralResponse<T = object> {
         return new GeneralResponse<T>().setData(data).setMessage("success");
     }
     public static responseWithError(error: unknown): GeneralResponse<unknown> {
-        return new GeneralResponse<unknown>().setError(error).setSuccess(false).setMessage("Something went wrong");
+        return new GeneralResponse<unknown>().setError(error).setSuccess(false).setMessage("Error");
     }
-    
+
 
     /**
     * @deprecated Use `responseWithError()` instead.

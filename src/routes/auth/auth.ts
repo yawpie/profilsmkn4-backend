@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import { hashPassword } from '../../middleware/hashMiddleware';
-import { authToken } from '../../middleware/authMiddleware';
 import { prisma } from '../../config/database/prisma';
 import GeneralResponse from '../../utils/generalResponse';
 import { generateToken } from '../../utils/jwt';
@@ -33,8 +32,8 @@ router.post('', async (req: Request, res: Response) => {
             throw new Error("Invalid password");
         }
         const token = generateToken({ adminId: admin.admin_id }, '1h');
-        res.status(200).json(GeneralResponse.defaultResponse().setData({ token: token }));
-
+        // res.status(200).json(GeneralResponse.defaultResponse().setData({ token: token }));
+        res.status(200).cookie("token", token, { httpOnly: true, secure: true, sameSite: "strict" }).json(GeneralResponse.defaultResponse().setData({ token: token }));
 
 
     } catch (err) {

@@ -1,15 +1,19 @@
 import express from 'express';
 import routes from './routes/routes';
+// import prismaErrorHandler from "./middleware/prismaErrorHandler";
+import cookieParser from "cookie-parser";
+
 
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use("/api", routes);
+// app.use(prismaErrorHandler);
 
 
-app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
-});
+
+export default app;
