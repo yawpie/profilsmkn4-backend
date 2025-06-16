@@ -20,7 +20,7 @@ export function authToken(req: AuthRequest, res: Response, next: NextFunction): 
     next();
 }
 
-export function chechAuthWithCookie(req: AuthRequest, res: Response, next: NextFunction): void {
+export function checkAuthWithCookie(req: AuthRequest, res: Response, next: NextFunction): void {
     if (process.env.NODE_ENV === "test") {
         req.admin = { adminId: "test-admin-id" };
         next();

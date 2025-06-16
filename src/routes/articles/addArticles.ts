@@ -1,20 +1,19 @@
 import { Router, Request, Response } from "express";
-import { chechAuthWithCookie } from "../../middleware/authMiddleware";
+import { checkAuthWithCookie } from "../../middleware/authMiddleware";
 import { AuthRequest } from "../../types/auth";
 import { prisma } from "../../config/database/prisma";
 import { upload } from "../../middleware/uploadMiddleware";
 import { bucket } from "../../config/firebase/firebase";
 import GeneralResponse from "../../utils/generalResponse";
 import { checkCategoryId } from "../../middleware/checkCategoryIdMiddleware";
-import { CategoryRequest } from "../../types/category";
+import { CategoryBody, CategoryRequest, ExtraCategoryField } from "../../types/category";
 
 const router: Router = Router();
 
-router.post("/", chechAuthWithCookie, upload.single("image"), checkCategoryId, async (req: CategoryRequest, res: Response) => {
-    console.log("category: ", req.category);
+router.post("/", checkAuthWithCookie, upload.single("image"), checkCategoryId, async (req: AuthRequest<CategoryBody, any, any, ExtraCategoryField>, res: Response) => {
     console.log("body: ", req.body);
     console.log("file: ", req.file);
-    const category_id = req.body.category_id;
+    const category_id = req.category_id;
     console.log("typeof category_id:", typeof category_id, "value:", category_id);
 
 
@@ -22,7 +21,8 @@ router.post("/", chechAuthWithCookie, upload.single("image"), checkCategoryId, a
         if (!req.admin?.adminId) {
             throw new Error("Admin not found");
         }
-        const { title, content, category_id } = req.body;
+        const { title, content } = req.body;
+        const category_id = req.category_id;
         const file = req.file;
 
         let imageUrl: string | null = null;

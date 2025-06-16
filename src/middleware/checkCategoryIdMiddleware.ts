@@ -2,27 +2,27 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../config/database/prisma";
 import GeneralResponse from "../utils/generalResponse";
 import { AuthRequest } from "../types/auth";
-import { CategoryRequest } from "../types/category";
+import { CategoryBody, CategoryRequest, ExtraCategoryField } from "../types/category";
 
 
-export async function checkCategoryId(req: CategoryRequest, res: Response, next: NextFunction) {
-    const category_id = req.body?.category_id;
-    if (!category_id) {
+export async function checkCategoryId(req: AuthRequest<CategoryBody, any, any, ExtraCategoryField >, res: Response, next: NextFunction) {
+    const categoryName = req.body.category_name;
+    if (!categoryName) {
         res.status(400).json(GeneralResponse.responseWithError("Category must be provided!"));
         return;
     }
     try {
 
-        const category = await prisma.category.findUnique({
+        const category = await prisma.category.findFirst({
             where: {
-                category_id: category_id
+                name: categoryName
             }
         });
         if (!category) {
             res.status(404).json(GeneralResponse.responseWithError("Category not found, please make it first"));
             return;
         }
-        req.category = { category_name: category?.name };
+        req.category_id = category.category_id
         next();
 
     } catch (error) {
