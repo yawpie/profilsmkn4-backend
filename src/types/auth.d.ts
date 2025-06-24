@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { CategoryBody } from "./category";
+import { ArticlesBodyRequest } from "./category";
 
 
 // export interface AuthRequest<

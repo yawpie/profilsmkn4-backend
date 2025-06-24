@@ -4,13 +4,15 @@ import { AuthRequest } from "../../types/auth";
 import { prisma } from "../../config/database/prisma";
 import { upload } from "../../middleware/uploadMiddleware";
 import { bucket } from "../../config/firebase/firebase";
-import GeneralResponse from "../../utils/generalResponse";
+// import GeneralResponse from "../../utils/generalResponse";
 import { checkCategoryId } from "../../middleware/checkCategoryIdMiddleware";
-import { CategoryBody, CategoryRequest, ExtraCategoryField } from "../../types/category";
+import { ArticlesBodyRequest, CategoryRequest, ExtraCategoryField } from "../../types/category";
+import HttpError, { BadRequestError } from "../../types/responseError";
+import { sendData, sendError } from "../../utils/send";
 
 const router: Router = Router();
 
-router.post("/", checkAuthWithCookie, upload.single("image"), checkCategoryId, async (req: AuthRequest<CategoryBody, any, any, ExtraCategoryField>, res: Response) => {
+router.post("/", checkAuthWithCookie, upload.single("image"), checkCategoryId, async (req: AuthRequest<ArticlesBodyRequest, any, any, ExtraCategoryField>, res: Response) => {
     console.log("body: ", req.body);
     console.log("file: ", req.file);
     const category_id = req.category_id;
@@ -18,9 +20,9 @@ router.post("/", checkAuthWithCookie, upload.single("image"), checkCategoryId, a
 
 
     try {
-        if (!req.admin?.adminId) {
-            throw new Error("Admin not found");
-        }
+        // if (!req.admin?.adminId) {
+        //     throw new BadRequestError("");
+        // }
         const { title, content } = req.body;
         const category_id = req.category_id;
         const file = req.file;
@@ -41,7 +43,7 @@ router.post("/", checkAuthWithCookie, upload.single("image"), checkCategoryId, a
 
             imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
         } else {
-            throw new Error("Image is required");
+            throw new BadRequestError("Image is required");
         }
 
         const article = await prisma.articles.create({
@@ -53,11 +55,11 @@ router.post("/", checkAuthWithCookie, upload.single("image"), checkCategoryId, a
                 admin_id: req.admin?.adminId,
             },
         });
-        res.status(201).json(GeneralResponse.responseWithData(article));
-
+        // res.json(GeneralResponse.responseWithData(article));
+        sendData(res, article);
     } catch (error) {
         console.error(error);
-        res.status(500).json(GeneralResponse.responseWithError(error));
+        sendError(res, error);
     }
 
 

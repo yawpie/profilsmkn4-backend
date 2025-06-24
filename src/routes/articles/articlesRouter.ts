@@ -7,11 +7,11 @@ import get from "./publicArticles";
 
 const articlesRouter = Router();
 
-articlesRouter.use("/add", add);
-articlesRouter.use("/edit", update);
-articlesRouter.use("/delete", remove);
-articlesRouter.use("/add-category", addCategory);
-articlesRouter.use("/get", get);
+articlesRouter.use("/", add);
+articlesRouter.use("/", update);
+articlesRouter.use("/", remove);
+articlesRouter.use("/", addCategory);
+articlesRouter.use("/", get);
 
 
 export default articlesRouter;

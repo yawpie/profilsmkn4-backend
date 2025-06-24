@@ -1,19 +1,21 @@
 import { Response, NextFunction } from "express";
 import { verifyJwt } from "../utils/jwt";
-import GeneralResponse from "../utils/generalResponse";
+// import GeneralResponse from "../utils/generalResponse";
 import { AuthRequest } from "../types/auth";
+import  { UnauthorizedError } from "../types/responseError";
+import { sendError } from "../utils/send";
 
 export function authToken(req: AuthRequest, res: Response, next: NextFunction): void {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
 
     if (!token) {
-        res.status(401).json({ message: "Unauthorized" });
+        res.json({ message: "Unauthorized" });
         return;
     }
     const decoded = verifyJwt(token);
     if (!decoded) {
-        res.status(401).json({ message: "Invalid token" });
+        res.json({ message: "Invalid token" });
         return;
     }
     req.admin = { adminId: decoded.adminId };
@@ -28,21 +30,20 @@ export function checkAuthWithCookie(req: AuthRequest, res: Response, next: NextF
     }
 
     const token = req.cookies?.token;
-    if (!token) {
-        res.status(401).json(GeneralResponse.responseWithError("Unauthorized"));
-        return;
-    }
 
     try {
+        if (!token) {
+            throw new UnauthorizedError("Unauthorized");
+        }
         const decoded = verifyJwt(token);
         if (!decoded) {
-            res.status(401).json({ message: "Invalid token" });
-            return;
+            throw new UnauthorizedError("Invalid token");
         }
         req.admin = { adminId: decoded.adminId };
         next();
     } catch (err) {
-        res.status(403).json(GeneralResponse.responseWithError("Unauthorized"));
-        return;
+        // res.json(GeneralResponse.sendError(err));
+        sendError(res, err)
     }
 }
+

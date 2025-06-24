@@ -6,7 +6,7 @@ export interface CategoryRequest extends AuthRequest {
     category_id?: string;
 }
 
-export type CategoryBody = Request & {
+export type ArticlesBodyRequest = Request & {
     title: string;
     content: string;
     category_name: string;

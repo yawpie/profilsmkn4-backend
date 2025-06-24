@@ -3,16 +3,17 @@ import { prisma } from "../../config/database/prisma";
 import { AuthRequest } from "../../types/auth";
 import { checkAuthWithCookie } from "../../middleware/authMiddleware";
 import { upload } from "../../middleware/uploadMiddleware";
-import GeneralResponse from "../../utils/generalResponse";
-import { CategoryBody, ExtraCategoryField } from "../../types/category";
+// import GeneralResponse from "../../utils/generalResponse";
+import { ArticlesBodyRequest, ExtraCategoryField } from "../../types/category";
 import { checkCategoryId } from "../../middleware/checkCategoryIdMiddleware";
 import { bucket } from "../../config/firebase/firebase";
+import { sendData, sendError } from "../../utils/send";
 
 const router = Router();
 
 
 
-router.put("/:id", checkAuthWithCookie, upload.single("image"), checkCategoryId, async (req: AuthRequest<CategoryBody, any, any, ExtraCategoryField>, res: Response) => {
+router.put("/:id", checkAuthWithCookie, upload.single("image"), checkCategoryId, async (req: AuthRequest<ArticlesBodyRequest, any, any, ExtraCategoryField>, res: Response) => {
     const articleId = req.params.id
     const { title, content } = req.body;
     const category_id = req.category_id
@@ -57,9 +58,11 @@ router.put("/:id", checkAuthWithCookie, upload.single("image"), checkCategoryId,
                 category_id: category_id
             }
         })
-
+        // res.json(GeneralResponse.responseWithData(updatedArticle));
+        sendData(res, updatedArticle);
     } catch (error) {
-        res.status(500).json(GeneralResponse.responseWithError(error));
+        // res.json(GeneralResponse.unexpectedError(error));
+        sendError(res, error);
     }
 
 

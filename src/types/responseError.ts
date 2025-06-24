@@ -1,14 +1,46 @@
-type errName = "ResponseError" | "AuthError" | "UnknownError" | "RequestBodyError"
-export default class ResponseError extends Error {
-    name: string;
-    message: string;
-    stack?: string | undefined;
+import { StatusCode } from "../utils/generalResponse";
 
-    constructor(message: string, name: errName) {
-        super();
-        this.message = message
-        this.name = name
-        
-        this.stack = new Error().stack;
-    }
+
+export default class HttpError extends Error {
+  name: string;
+  public status: StatusCode;
+  stack?: string | undefined;
+
+  constructor(message: string, statusCode: StatusCode) {
+    super(message);
+    this.name = this.constructor.name
+    this.status = statusCode;
+    this.stack = new Error().stack;
+
+    Object.setPrototypeOf(this, new.target.prototype);
+
+  }
+}
+
+export class NotFoundError extends HttpError {
+  constructor(message = "Resource not found") {
+    super(message, 404);
+    this.name = "NotFoundError";
+  }
+}
+
+export class BadRequestError extends HttpError {
+  constructor(message = "Bad request") {
+    super(message, 400);
+    this.name = "BadRequestError";
+  }
+}
+
+export class UnauthorizedError extends HttpError {
+  constructor(message = "Unauthorized") {
+    super(message, 401);
+    this.name = "UnauthorizedError";
+  }
+}
+
+export class UnexpectedError extends HttpError {
+  constructor(message = "An unexpected error occurred") {
+    super(message, 500);
+    this.name = "UnexpectedError";
+  }
 }
