@@ -2,7 +2,7 @@ import { Router } from "express";
 import add from "./addArticles";
 import update from "./editArticle";
 import remove from "./deleteArticle";
-import addCategory from "./addCategory";
+import addCategory from "../category/addCategory";
 import get from "./publicArticles";
 
 const articlesRouter = Router();

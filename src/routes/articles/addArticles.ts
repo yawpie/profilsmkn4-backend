@@ -1,13 +1,12 @@
-import { Router, Request, Response } from "express";
+import { Router, Response } from "express";
 import { checkAuthWithCookie } from "../../middleware/authMiddleware";
 import { AuthRequest } from "../../types/auth";
 import { prisma } from "../../config/database/prisma";
 import { upload } from "../../middleware/uploadMiddleware";
 import { bucket } from "../../config/firebase/firebase";
-// import GeneralResponse from "../../utils/generalResponse";
 import { checkCategoryId } from "../../middleware/checkCategoryIdMiddleware";
-import { ArticlesBodyRequest, CategoryRequest, ExtraCategoryField } from "../../types/category";
-import HttpError, { BadRequestError } from "../../types/responseError";
+import { ArticlesBodyRequest, ExtraCategoryField } from "../../types/category";
+import { BadRequestError } from "../../types/responseError";
 import { sendData, sendError } from "../../utils/send";
 
 const router: Router = Router();
