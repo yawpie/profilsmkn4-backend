@@ -3,7 +3,7 @@ import { prisma } from "../config/database/prisma";
 // import GeneralResponse from "../utils/generalResponse";
 import { AuthRequest } from "../types/auth";
 import { ArticlesBodyRequest, CategoryRequest, ExtraCategoryField } from "../types/category";
-import HttpError, { BadRequestError, NotFoundError } from "../types/responseError";
+import HttpError, { BadRequestError, NotFoundError } from "../errorHandler/responseError";
 import { sendError } from "../utils/send";
 
 
@@ -18,7 +18,10 @@ export async function checkCategoryId(req: AuthRequest<ArticlesBodyRequest, any,
 
         const category = await prisma.category.findFirst({
             where: {
-                name: categoryName
+                name: {
+                    mode: 'insensitive',
+                    equals: categoryName
+                }
             }
         });
         if (!category) {

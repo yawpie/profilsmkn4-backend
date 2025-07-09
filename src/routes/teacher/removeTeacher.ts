@@ -7,7 +7,8 @@ import { AuthRequest } from "../../types/auth";
 import { checkAuthWithCookie } from "../../middleware/authMiddleware";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { sendData, sendError } from "../../utils/send";
-import { NotFoundError } from "../../types/responseError";
+import { NotFoundError } from "../../errorHandler/responseError";
+import { deleteFirebaseFile } from "../../utils/firebaseHandler";
 
 const router = Router();
 
@@ -15,10 +16,22 @@ router.delete("/:id", checkAuthWithCookie, async (req: AuthRequest, res: Respons
     const { id } = req.params;
     try {
         if (!id) {
-            // res.json(GeneralResponse.notFound());
-            
             throw new NotFoundError("Teacher not found")
         }
+        const imageUrlToDelete = await handlePrismaNotFound(()=>
+            prisma.guru.findUnique({
+                where: {
+                    guru_id: id
+                },
+                select: {
+                    image_url : true
+                }
+            })
+        );
+        if (imageUrlToDelete.image_url) {
+            deleteFirebaseFile(imageUrlToDelete.image_url);
+        }
+
         const deleted = await handlePrismaNotFound(() =>
             prisma.guru.delete({
                 where: {
@@ -30,7 +43,7 @@ router.delete("/:id", checkAuthWithCookie, async (req: AuthRequest, res: Respons
         sendData(res, deleted);
     } catch (error) {
         // res.json(GeneralResponse.unexpectedError(error));
-        sendError(res,error);
+        sendError(res, error);
     }
 })
 

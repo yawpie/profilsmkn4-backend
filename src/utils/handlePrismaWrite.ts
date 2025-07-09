@@ -1,5 +1,5 @@
 import { Prisma } from "../generated/prisma";
-import HttpError from "../types/responseError";
+import HttpError from "../errorHandler/responseError";
 
 export async function handlePrismaWrite<T>(
     fn: () => Promise<T>,
@@ -12,7 +12,7 @@ export async function handlePrismaWrite<T>(
             switch (error.code) {
                 case 'P2002': // Unique constraint failed
 
-                    throw new HttpError('Duplicate value violates unique constraint', 400);
+                    throw new HttpError('Duplicate value', 400);
                 case 'P2003': // Foreign key constraint failed
 
                     throw new HttpError("Foreign key constraint failed", 400);

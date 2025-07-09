@@ -29,7 +29,7 @@ export async function paginate<T>(
     ]);
 
     return {
-      data,
+      data: data,
       total,
       page,
       pageSize,

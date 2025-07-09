@@ -1,7 +1,11 @@
-import express from 'express';
+import express, { Response } from 'express';
 import routes from './routes/routes';
 import cookieParser from "cookie-parser";
 import cors from 'cors';
+import { sendError } from './utils/send';
+import { AuthRequest } from './types/auth';
+import multer from 'multer';
+import { multerErrorHandler } from './errorHandler/multerError';
 
 
 const app = express();
@@ -31,6 +35,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use("/api", routes);
+app.use(multerErrorHandler);
 
 
 

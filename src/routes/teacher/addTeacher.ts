@@ -2,32 +2,32 @@ import { Response, Router } from "express";
 import { prisma } from "../../config/database/prisma"
 import { TeacherRequestBody } from "../../types/teacher";
 import { AuthRequest } from "../../types/auth";
-// import GeneralResponse from "../../utils/generalResponse";
-// import ResponseError from "../../types/responseError";
 import { checkAuthWithCookie } from "../../middleware/authMiddleware";
 import { sendData, sendError } from "../../utils/send";
-import HttpError from "../../types/responseError";
+import { BadRequestError } from "../../errorHandler/responseError";
+import { upload } from "../../middleware/uploadMiddleware";
+import { uploadImageToFirebase } from "../../utils/firebaseHandler";
 
 const router = Router()
 
 
-router.post("/", checkAuthWithCookie, async (req: AuthRequest<TeacherRequestBody>, res: Response) => {
+router.post("/", checkAuthWithCookie, upload.single("image"), async (req: AuthRequest<TeacherRequestBody>, res: Response) => {
     const { name, jabatan } = req.body;
+    const imageFile = req.file;
     try {
+        const imageUrl = await uploadImageToFirebase(imageFile, "teachers");
         if (!name || !jabatan) {
-            throw new HttpError("nama dan jabatan kosong!", 400);
+            throw new BadRequestError("nama dan jabatan kosong");
         }
         const teacher = await prisma.guru.create({
             data: {
                 name,
-                jabatan
+                jabatan,
+                image_url: imageUrl
             }
         })
-        // res.json(GeneralResponse.responseWithData(teacher));
-        // GeneralResponse.sendWithData(res, teacher);
         sendData(res, teacher);
     } catch (error) {
-        // res.json(GeneralResponse.sendError(error));
         sendError(res, error);
     }
 })

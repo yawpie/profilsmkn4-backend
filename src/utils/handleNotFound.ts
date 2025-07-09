@@ -1,6 +1,6 @@
 
 import { Prisma } from "../generated/prisma";
-import { NotFoundError } from "../types/responseError";
+import { NotFoundError } from "../errorHandler/responseError";
 /**
  * Wraps a Prisma query and handles "not found" errors.
  * Works with `findUniqueOrThrow` or manually null-checking.

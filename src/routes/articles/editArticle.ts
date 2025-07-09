@@ -8,20 +8,41 @@ import { ArticlesBodyRequest, ExtraCategoryField } from "../../types/category";
 import { checkCategoryId } from "../../middleware/checkCategoryIdMiddleware";
 import { bucket } from "../../config/firebase/firebase";
 import { sendData, sendError } from "../../utils/send";
+import { BadRequestError, UnexpectedError } from "../../errorHandler/responseError";
+import { handlePrismaNotFound } from "../../utils/handleNotFound";
 
 const router = Router();
 
 
 
-router.put("/:id", checkAuthWithCookie, upload.single("image"), checkCategoryId, async (req: AuthRequest<ArticlesBodyRequest, any, any, ExtraCategoryField>, res: Response) => {
-    const articleId = req.params.id
-    const { title, content } = req.body;
-    const category_id = req.category_id
-    const file = req.file;
+router.put("/:id", checkAuthWithCookie, upload.single("image"), async (req: AuthRequest, res: Response) => {
     try {
 
+        if (typeof req.body === "undefined") {
+            throw new BadRequestError("Kenapa ga kirim apa apa???");
+        }
+        const articleId = req.params.id
+        const { title, content } = req.body;
+        const category_id = req.body.category_id
+        const file = req.file;
         let imageUrl: string | null = null;
         if (file) {
+            // first delete the existing image
+            const url = await handlePrismaNotFound(() =>
+                prisma.articles.findUnique({
+                    where: {
+                        articles_id: articleId
+                    },
+                    select: {
+                        image_url: true
+                    }
+                })
+            )
+            if (url.image_url){
+                bucket.file(url.image_url).delete();
+            }
+            // second edit the url in the database
+
             const fileName = `articles/${Date.now()}_${file.originalname}`;
             const fileRef = bucket.file(fileName);
 
@@ -44,7 +65,7 @@ router.put("/:id", checkAuthWithCookie, upload.single("image"), checkCategoryId,
                     image_url: true
                 }
             })
-            if (!getImageUrl) { throw new Error("Image Url Problem") }
+            if (!getImageUrl) { throw new UnexpectedError("Image Url Problem") }
             imageUrl = getImageUrl.image_url
         }
         const updatedArticle = await prisma.articles.update({

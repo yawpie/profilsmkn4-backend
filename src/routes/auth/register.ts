@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-import {  PrismaClient } from '../../generated/prisma/client';
+import { PrismaClient } from '../../generated/prisma/client';
 import { hashPassword } from '../../middleware/hashMiddleware';
 // import AuthResponse from '../../types/response';
 // import GeneralResponse from '../../utils/generalResponse';
-import { UnauthorizedError } from '../../types/responseError';
+import { UnauthorizedError } from '../../errorHandler/responseError';
 import { handlePrismaWrite } from '../../utils/handlePrismaWrite';
 import { sendData, sendError } from '../../utils/send';
 
@@ -32,7 +32,7 @@ router.post('', hashPassword, async (req: Request, res: Response) => { // the mi
     } catch (err) {
 
         // res.json(GeneralResponse.unexpectedError(err));
-        sendError(res,err);
+        sendError(res, err);
     }
 });
 

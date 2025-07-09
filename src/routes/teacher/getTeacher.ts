@@ -11,7 +11,7 @@ import { sendData, sendError } from "../../utils/send";
 
 const router = Router();
 
-router.get("/",checkAuthWithCookie, async (req: AuthRequest, res: Response) => {
+router.get("/", async (req: AuthRequest, res: Response) => {
     const guruName = req.query.nama as string;
 
     try {
@@ -23,7 +23,7 @@ router.get("/",checkAuthWithCookie, async (req: AuthRequest, res: Response) => {
                             contains: guruName,
                             mode: 'insensitive',
                         },
-                        
+
                     },
                 }), "guru not found"
             )

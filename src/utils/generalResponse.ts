@@ -1,5 +1,5 @@
 import { Response } from "express";
-import HttpError from "../types/responseError";
+import HttpError from "../errorHandler/responseError";
 
 
 export type StatusCode = 200 | 201 | 202 | 400 | 401 | 403 | 404 | 500;

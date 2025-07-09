@@ -33,7 +33,7 @@ model articles {
 
 model category {
   category_id String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name        String     @db.VarChar(255)
+  name        String     @db.VarChar(255) @unique
   articles    articles[]
 }
 
@@ -41,4 +41,6 @@ model guru{
   guru_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name String @db.VarChar(255)
   jabatan String @db.VarChar(255)
+  image_url String? @db.VarChar(255)
+
 }

@@ -1,30 +1,31 @@
 import { Router, Request, Response } from "express";
 import { checkAuthWithCookie } from "../../middleware/authMiddleware";
 import { prisma } from "../../config/database/prisma";
-// import GeneralResponse from "../../utils/generalResponse";
-import HttpError, { BadRequestError } from "../../types/responseError";
+import { BadRequestError } from "../../errorHandler/responseError";
 import { AuthRequest } from "../../types/auth";
 import { sendData, sendError } from "../../utils/send";
+import { validateCategory } from "../../validation/categoryValidator";
+import { handlePrismaWrite } from "../../utils/handlePrismaWrite";
 
 const router: Router = Router();
 
-router.post("/", checkAuthWithCookie, async (req: AuthRequest, res: Response) => {
+router.post("/", checkAuthWithCookie, validateCategory, async (req: AuthRequest, res: Response) => {
     try {
-        const newCategory = req.body.category_name;
+        const newCategory = req.body.category_name as string;
+
         if (!newCategory) {
             throw new BadRequestError("Category name is required")
         }
 
-        const createCategory = await prisma.category.create({
-            data: {
-                name: newCategory
-            }
-        });
-        // res.send(GeneralResponse.responseWithData(createCategory));
+        const createCategory = await handlePrismaWrite(() =>
+            prisma.category.create({
+                data: {
+                    name: newCategory
+                }
+            }))
         sendData(res, createCategory)
 
     } catch (err) {
-        // res.json(GeneralResponse.unexpectedError(err));
         sendError(res, err);
     }
 });

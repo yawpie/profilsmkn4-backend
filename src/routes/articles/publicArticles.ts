@@ -1,11 +1,12 @@
 import { Router, Request, Response } from "express";
 import { prisma } from '../../config/database/prisma';
-import GeneralResponse from "../../utils/generalResponse";
+// import GeneralResponse from "../../utils/generalResponse";
 import { checkAuthWithCookie } from "../../middleware/authMiddleware";
 import { AuthRequest } from "../../types/auth";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { paginate } from "../../types/pagination";
 import { sendData, sendError } from "../../utils/send";
+import { send } from "process";
 
 const router = Router();
 
@@ -71,7 +72,8 @@ router.get('/', async (req: Request, res: Response) => {
           },
         }), "Article not found"
       )
-      res.status(200).json(GeneralResponse.responseWithData(article));
+      // res.status(200).json(GeneralResponse.responseWithData(article));
+      sendData(res, article);
       return;
     }
 
@@ -86,6 +88,15 @@ router.get('/', async (req: Request, res: Response) => {
         prisma.articles.findMany({
           skip,
           take,
+          select: {
+            articles_id: true,
+            content: true,
+            image_url: true,
+            published_date: true,
+            admin: { select: { username: true } },
+            category: { select: { name: true } },
+            title: true
+          }
         }),
       // count function
       () => prisma.articles.count(),

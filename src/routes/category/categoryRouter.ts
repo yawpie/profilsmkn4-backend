@@ -5,7 +5,7 @@ import addCategory from "./addCategory"
 
 const categoryRoute = Router();
 
-categoryRoute.use("/add", addCategory);
+categoryRoute.use("/", addCategory);
 
 
 export default categoryRoute;
