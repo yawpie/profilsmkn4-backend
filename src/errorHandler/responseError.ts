@@ -45,3 +45,9 @@ export class UnexpectedError extends HttpError {
   }
 }
 
+export class FirebaseError extends HttpError {
+  constructor(message = "Firebase error") {
+    super(message, 500);
+    this.name = "FirebaseError";
+  }
+}

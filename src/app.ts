@@ -11,8 +11,10 @@ import { multerErrorHandler } from './errorHandler/multerError';
 const app = express();
 
 const allowedOrigins = [
-  'http://localhost:3000',             // local dev
-  /^http:\/\/192\.168\.236\.\d{1,3}:3000$/, // all IPs in 192.168.236.x:3000 range
+  'http://localhost:3001',
+  'http://localhost:3000',
+  'http://192.168.1.15:3000',             // local dev
+  /^http:\/\/192\.168\.1\.\d{1,3}:3000$/, // all IPs in 192.168.236.x:3000 range
 ];
 app.use(cors({
   origin: (origin, callback) => {

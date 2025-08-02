@@ -1,0 +1,50 @@
+import { Router, Response } from "express";
+import { checkAuthWithCookie } from "../../middleware/authMiddleware";
+import { AuthRequest } from "../../types/auth";
+import { handlePrismaWrite } from "../../utils/handlePrismaWrite";
+import { prisma } from "../../config/database/prisma";
+import { sendData, sendError } from "../../utils/send";
+import { handlePrismaNotFound } from "../../utils/handleNotFound";
+import { deleteFirebaseFile } from "../../utils/firebaseHandler";
+import { BadRequestError } from "../../errorHandler/responseError";
+
+const router = Router();
+
+router.delete(
+  "/:id",
+  checkAuthWithCookie,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        throw new BadRequestError("Invalid id");
+      }
+      const imageUrl = await handlePrismaNotFound(() =>
+        prisma.extracurriculars.findUnique({
+          where: {
+            id,
+          },
+          select: {
+            image_url: true,
+          },
+        })
+      );
+
+      if (imageUrl.image_url) {
+        deleteFirebaseFile(imageUrl.image_url);
+      }
+      const hapus = await handlePrismaWrite(() =>
+        prisma.extracurriculars.delete({
+          where: {
+            id,
+          },
+        })
+      );
+      sendData(res);
+    } catch (error) {
+      sendError(res, error);
+    }
+  }
+);
+
+export default router;

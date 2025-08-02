@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres
+    container_name: db-smkn4
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=type&writer
+      - POSTGRES_DB=profilsmkn4
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+
+  backend:
+    build: .
+    container_name: backend-smkn4-ts
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules # Hindari overwrite node_modules
+    env_file:
+      - .env
+    command: sh -c "npx prisma db push && npm run dev"
+
+volumes:
+  db_data:    
+
+    
