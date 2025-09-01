@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
-import { prisma } from '../../config/database/prisma';
+import { prisma } from "../../config/database/prisma";
 // import GeneralResponse from "../../utils/generalResponse";
-import { checkAuthWithCookie } from "../../middleware/authMiddleware";
+import { checkBearerToken } from "../../middleware/authMiddleware";
 import { AuthRequest } from "../../types/auth";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { paginate } from "../../types/pagination";
@@ -56,22 +56,24 @@ const router = Router();
 //     res.status(200).json(GeneralResponse.responseWithData(article));
 // });
 // ! warning: might error in pagination
-router.get('/', async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   const articleTitle = req.query.title as string;
 
   try {
     // Case 1: If `article_title` is provided, return a specific article
     if (articleTitle) {
-      const article = await handlePrismaNotFound(() =>
-        prisma.articles.findFirst({
-          where: {
-            title: {
-              contains: articleTitle,
-              mode: 'insensitive',
+      const article = await handlePrismaNotFound(
+        () =>
+          prisma.articles.findFirst({
+            where: {
+              title: {
+                contains: articleTitle,
+                mode: "insensitive",
+              },
             },
-          },
-        }), "Article not found"
-      )
+          }),
+        "Article not found"
+      );
       // res.status(200).json(GeneralResponse.responseWithData(article));
       sendData(res, article);
       return;
@@ -95,8 +97,8 @@ router.get('/', async (req: Request, res: Response) => {
             published_date: true,
             admin: { select: { username: true } },
             category: { select: { name: true } },
-            title: true
-          }
+            title: true,
+          },
         }),
       // count function
       () => prisma.articles.count(),
@@ -106,12 +108,10 @@ router.get('/', async (req: Request, res: Response) => {
 
     // res.json(GeneralResponse.responseWithData(result));
     sendData(res, result);
-
   } catch (error) {
     // res.json(GeneralResponse.unexpectedError(error));
     sendError(res, error);
   }
-
 });
 
 export default router;

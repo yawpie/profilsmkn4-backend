@@ -1,10 +1,10 @@
 // Todo 1: tambahkan remove-teacher
 
 import { Router, Response } from "express";
-import { prisma } from "../../config/database/prisma"
+import { prisma } from "../../config/database/prisma";
 import { AuthRequest } from "../../types/auth";
 // import GeneralResponse from "../../utils/generalResponse";
-import { checkAuthWithCookie } from "../../middleware/authMiddleware";
+import { checkBearerToken } from "../../middleware/authMiddleware";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { sendData, sendError } from "../../utils/send";
 import { NotFoundError } from "../../errorHandler/responseError";
@@ -12,40 +12,45 @@ import { deleteFirebaseFile } from "../../utils/firebaseHandler";
 
 const router = Router();
 
-router.delete("/:id", checkAuthWithCookie, async (req: AuthRequest, res: Response) => {
+router.delete(
+  "/:id",
+  checkBearerToken,
+  async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     try {
-        if (!id) {
-            throw new NotFoundError("Teacher not found")
-        }
-        const imageUrlToDelete = await handlePrismaNotFound(()=>
-            prisma.guru.findUnique({
-                where: {
-                    guru_id: id
-                },
-                select: {
-                    image_url : true
-                }
-            })
-        );
-        if (imageUrlToDelete.image_url) {
-            deleteFirebaseFile(imageUrlToDelete.image_url);
-        }
+      if (!id) {
+        throw new NotFoundError("Teacher not found");
+      }
+      const imageUrlToDelete = await handlePrismaNotFound(() =>
+        prisma.guru.findUnique({
+          where: {
+            guru_id: id,
+          },
+          select: {
+            image_url: true,
+          },
+        })
+      );
+      if (imageUrlToDelete.image_url) {
+        deleteFirebaseFile(imageUrlToDelete.image_url);
+      }
 
-        const deleted = await handlePrismaNotFound(() =>
-            prisma.guru.delete({
-                where: {
-                    guru_id: id,
-                }
-            }), "Teacher not found"
-        )
-        // res.json(GeneralResponse.defaultResponse());
-        sendData(res, deleted);
+      const deleted = await handlePrismaNotFound(
+        () =>
+          prisma.guru.delete({
+            where: {
+              guru_id: id,
+            },
+          }),
+        "Teacher not found"
+      );
+      // res.json(GeneralResponse.defaultResponse());
+      sendData(res, deleted);
     } catch (error) {
-        // res.json(GeneralResponse.unexpectedError(error));
-        sendError(res, error);
+      // res.json(GeneralResponse.unexpectedError(error));
+      sendError(res, error);
     }
-})
+  }
+);
 
 export default router;
-

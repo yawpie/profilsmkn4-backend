@@ -5,7 +5,7 @@ import { sendData, sendError } from "../../utils/send";
 import { AuthRequest } from "../../types/auth";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { handlePrismaWrite } from "../../utils/handlePrismaWrite";
-import { checkAuthWithCookie } from "../../middleware/authMiddleware";
+import { checkBearerToken } from "../../middleware/authMiddleware";
 import { upload } from "../../middleware/uploadMiddleware";
 import { uploadImageToFirebase } from "../../utils/firebaseHandler";
 import { FacilitiesRequestBody } from "../../types/facilities";
@@ -16,7 +16,7 @@ const router: Router = Router();
 
 router.post(
   "/",
-  checkAuthWithCookie,
+  checkBearerToken,
   upload.single("image"),
   async (req: AuthRequest<MajorsRequestBody>, res: Response) => {
     try {

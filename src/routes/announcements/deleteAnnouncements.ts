@@ -1,5 +1,5 @@
 import { Router, Response } from "express";
-import { checkAuthWithCookie } from "../../middleware/authMiddleware";
+import { checkBearerToken } from "../../middleware/authMiddleware";
 import { AuthRequest } from "../../types/auth";
 import { handlePrismaWrite } from "../../utils/handlePrismaWrite";
 import { prisma } from "../../config/database/prisma";
@@ -12,14 +12,14 @@ const router = Router();
 
 router.delete(
   "/:id",
-  checkAuthWithCookie,
+  checkBearerToken,
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
       if (!id) {
         throw new BadRequestError("Invalid id");
       }
-      
+
       const hapus = await handlePrismaWrite(() =>
         prisma.announcements.delete({
           where: {

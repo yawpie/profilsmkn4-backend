@@ -6,7 +6,7 @@ import { TeacherRequestBody } from "../../types/teacher";
 // import GeneralResponse from "../../utils/generalResponse";
 import { prisma } from "../../config/database/prisma";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
-import { checkAuthWithCookie } from "../../middleware/authMiddleware";
+import { checkBearerToken } from "../../middleware/authMiddleware";
 import { sendData, sendError } from "../../utils/send";
 import {
   deleteFirebaseFile,
@@ -22,12 +22,12 @@ const router = Router();
 
 router.put(
   "/:id",
-  checkAuthWithCookie,
+  checkBearerToken,
   upload.single("image"),
   async (req: AuthRequest<AnnouncementsRequestBody>, res: Response) => {
     const id = req.params.id;
-    const {title, content, date, status } = req.body;
-    
+    const { title, content, date, status } = req.body;
+
     // if (!name || !jabatan) {
     //     res.status(404).json(GeneralResponse.responseWithError("nama dan jabatan kosong!"));
     //     return;
@@ -44,7 +44,7 @@ router.put(
               title,
               content,
               status,
-              date
+              date,
             },
           }),
         "Extracurricular not found"

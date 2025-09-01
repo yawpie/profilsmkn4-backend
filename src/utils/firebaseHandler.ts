@@ -35,6 +35,7 @@ export async function uploadImageToFirebase(
     const imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
     return imageUrl;
   } catch (error) {
+    console.log("Error uploading image:", error);
     throw new FirebaseError("Failed to upload image to Firebase");
   }
 }
