@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { checkBearerToken } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { prisma } from "../../config/database/prisma";
 import { BadRequestError } from "../../errorHandler/responseError";
 import { AuthRequest } from "../../types/auth";
@@ -11,7 +11,7 @@ const router: Router = Router();
 
 router.post(
   "/",
-  checkBearerToken,
+  checkAccessWithCookie,
   validateCategory,
   async (req: AuthRequest, res: Response) => {
     try {

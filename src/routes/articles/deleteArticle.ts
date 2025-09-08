@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../../config/database/prisma";
 import { AuthRequest } from "../../types/auth";
-import { checkBearerToken } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { sendData, sendError } from "../../utils/send";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import {
@@ -16,7 +16,7 @@ const router = Router();
 
 router.delete(
   "/:id",
-  checkBearerToken,
+  checkAccessWithCookie,
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;

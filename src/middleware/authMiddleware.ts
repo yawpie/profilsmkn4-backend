@@ -4,7 +4,8 @@ import { AuthRequest } from "../types/auth";
 import { UnauthorizedError } from "../errorHandler/responseError";
 import { sendError } from "../utils/send";
 
-export function checkBearerToken(
+
+export function checkAccessWithCookie(
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -14,15 +15,17 @@ export function checkBearerToken(
     next();
     return;
   }
+  const request = req;
+  console.log("Request:", request.cookies);
 
-  // const token = req.cookies?.token;
-  const bearer = req.headers?.authorization?.split(" ")[1];
+  const accessToken = req.cookies?.access_token;
+  console.log("accessToken:", accessToken);
 
   try {
-    if (!bearer) {
+    if (!accessToken) {
       throw new UnauthorizedError("Unauthorized");
     }
-    const decoded = verifyJwt(bearer);
+    const decoded = verifyJwt(accessToken);
     if (!decoded) {
       throw new UnauthorizedError("Invalid token");
     }

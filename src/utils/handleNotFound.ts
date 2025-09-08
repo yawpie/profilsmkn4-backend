@@ -1,6 +1,6 @@
 
 import { Prisma } from "../generated/prisma";
-import { NotFoundError } from "../errorHandler/responseError";
+import { BadRequestError, NotFoundError } from "../errorHandler/responseError";
 /**
  * Wraps a Prisma query and handles "not found" errors.
  * Works with `findUniqueOrThrow` or manually null-checking.
@@ -12,7 +12,7 @@ export async function handlePrismaNotFound<T>(
     try {
         const result = await fn();
         if (!result || (Array.isArray(result) && result.length === 0)) {
-            throw new NotFoundError(notFoundMessage);
+            throw new BadRequestError(notFoundMessage);
         }
         return result;
     } catch (error) {
@@ -21,7 +21,7 @@ export async function handlePrismaNotFound<T>(
             error.code === 'P2025'
         ) {
 
-            throw new NotFoundError(notFoundMessage);
+            throw new BadRequestError(notFoundMessage);
 
         }
         throw error;

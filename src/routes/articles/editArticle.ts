@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../../config/database/prisma";
 import { AuthRequest } from "../../types/auth";
-import { checkBearerToken } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { upload } from "../../middleware/uploadMiddleware";
 // import GeneralResponse from "../../utils/generalResponse";
 import { ArticlesBodyRequest, ExtraCategoryField } from "../../types/category";
@@ -18,7 +18,7 @@ const router = Router();
 
 router.put(
   "/:id",
-  checkBearerToken,
+  checkAccessWithCookie,
   upload.single("image"),
   async (req: AuthRequest, res: Response) => {
     try {

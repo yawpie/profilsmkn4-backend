@@ -1,5 +1,5 @@
 import { Router, Response } from "express";
-import { checkBearerToken } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { AuthRequest } from "../../types/auth";
 import { prisma } from "../../config/database/prisma";
 import { upload } from "../../middleware/uploadMiddleware";
@@ -14,7 +14,7 @@ const router: Router = Router();
 
 router.post(
   "/",
-  checkBearerToken,
+  checkAccessWithCookie,
   upload.single("image"),
   checkCategoryId,
   async (
@@ -47,7 +47,11 @@ router.post(
       // } else {
       //     throw new BadRequestError("Image is required");
       // }
-      const imageUrl = await uploadImageToFirebase(file, "articles");
+      let imageUrl: string | undefined;
+      if (file) {
+        imageUrl = await uploadImageToFirebase(file, "articles");
+      }
+
 
       const article = await prisma.articles.create({
         data: {

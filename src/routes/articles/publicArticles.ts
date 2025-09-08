@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../../config/database/prisma";
 // import GeneralResponse from "../../utils/generalResponse";
-import { checkBearerToken } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { AuthRequest } from "../../types/auth";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { paginate } from "../../types/pagination";

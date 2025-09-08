@@ -2,7 +2,7 @@ import { Response, Router } from "express";
 import { prisma } from "../../config/database/prisma";
 import { TeacherRequestBody } from "../../types/teacher";
 import { AuthRequest } from "../../types/auth";
-import { checkBearerToken } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { sendData, sendError } from "../../utils/send";
 import { BadRequestError } from "../../errorHandler/responseError";
 import { upload } from "../../middleware/uploadMiddleware";
@@ -12,13 +12,18 @@ const router = Router();
 
 router.post(
   "/",
-  checkBearerToken,
+  checkAccessWithCookie,
   upload.single("image"),
   async (req: AuthRequest<TeacherRequestBody>, res: Response) => {
-    const { name, jabatan } = req.body;
+    const { name, jabatan, nip } = req.body;
     const imageFile = req.file;
+    console.log("hello");
+    
     try {
-      const imageUrl = await uploadImageToFirebase(imageFile, "teachers");
+      let imageUrl: string | undefined;
+      if (imageFile) {
+        imageUrl = await uploadImageToFirebase(imageFile, "teachers");
+      }
       if (!name || !jabatan) {
         throw new BadRequestError("nama dan jabatan kosong");
       }
@@ -27,6 +32,7 @@ router.post(
           name,
           jabatan,
           image_url: imageUrl,
+          nip
         },
       });
       sendData(res, teacher);

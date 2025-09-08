@@ -6,7 +6,7 @@ import { TeacherRequestBody } from "../../types/teacher";
 // import GeneralResponse from "../../utils/generalResponse";
 import { prisma } from "../../config/database/prisma";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
-import { checkBearerToken } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { sendData, sendError } from "../../utils/send";
 import {
   deleteFirebaseFile,
@@ -18,7 +18,7 @@ const router = Router();
 
 router.put(
   "/:id",
-  checkBearerToken,
+  checkAccessWithCookie,
   upload.single("image"),
   async (req: AuthRequest<TeacherRequestBody>, res: Response) => {
     const guru_id = req.params.id;

@@ -5,7 +5,7 @@ import { sendData, sendError } from "../../utils/send";
 import { AuthRequest } from "../../types/auth";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { handlePrismaWrite } from "../../utils/handlePrismaWrite";
-import { checkBearerToken } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { upload } from "../../middleware/uploadMiddleware";
 import { uploadImageToFirebase } from "../../utils/firebaseHandler";
 import { FacilitiesRequestBody } from "../../types/facilities";
@@ -15,7 +15,7 @@ const router: Router = Router();
 
 router.post(
   "/",
-  checkBearerToken,
+  checkAccessWithCookie,
   upload.single("image"),
   async (req: AuthRequest<ExtraCurricularsRequestBody>, res: Response) => {
     try {
@@ -23,9 +23,12 @@ router.post(
       if (!name) {
         throw new BadRequestError("Name are required");
       }
+      
       const file = req.file;
-
-      const imageUrl = await uploadImageToFirebase(file, "extracurriculars");
+      let imageUrl: string | undefined;
+      if (file) {
+        imageUrl = await uploadImageToFirebase(file, "extracurriculars");
+      }
       const create = await handlePrismaWrite(() =>
         prisma.extracurriculars.create({
           data: {

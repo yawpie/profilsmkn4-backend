@@ -6,7 +6,7 @@ import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { prisma } from "../../config/database/prisma";
 import { paginate } from "../../types/pagination";
 // import GeneralResponse from "../../utils/generalResponse";
-import { checkBearerToken } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { sendData, sendError } from "../../utils/send";
 
 const router = Router();
