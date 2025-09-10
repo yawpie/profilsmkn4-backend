@@ -10,6 +10,7 @@ export type ArticlesBodyRequest = Request & {
     title: string;
     content: string;
     category_name: string;
+    status: "DRAFT" | "PUBLISHED";
     // note: Image is handled by uploadMiddleware
 }
 export type ExtraCategoryField = {

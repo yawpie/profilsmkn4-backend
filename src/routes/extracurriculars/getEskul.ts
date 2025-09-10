@@ -1,5 +1,5 @@
 import { Router, Response } from "express";
-import { checkAuthWithCookie } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { AuthRequest } from "../../types/auth";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { prisma } from "../../config/database/prisma";
@@ -10,7 +10,7 @@ const router = Router();
 
 router.get(
   "/",
-  checkAuthWithCookie,
+  checkAccessWithCookie,
   async (req: AuthRequest, res: Response) => {
     const eskulName = req.query.name as string;
 

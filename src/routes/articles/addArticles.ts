@@ -1,5 +1,5 @@
 import { Router, Response } from "express";
-import { checkAuthWithCookie } from "../../middleware/authMiddleware";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { AuthRequest } from "../../types/auth";
 import { prisma } from "../../config/database/prisma";
 import { upload } from "../../middleware/uploadMiddleware";
@@ -12,51 +12,64 @@ import { uploadImageToFirebase } from "../../utils/firebaseHandler";
 
 const router: Router = Router();
 
-router.post("/", checkAuthWithCookie, upload.single("image"), checkCategoryId, async (req: AuthRequest<ArticlesBodyRequest, any, any, ExtraCategoryField>, res: Response) => {
-
+router.post(
+  "/",
+  checkAccessWithCookie,
+  upload.single("image"),
+  checkCategoryId,
+  async (
+    req: AuthRequest<ArticlesBodyRequest, any, any, ExtraCategoryField>,
+    res: Response
+  ) => {
     try {
-        // if (!req.admin?.adminId) {
-        //     throw new BadRequestError("");
-        // }
+      // if (!req.admin?.adminId) {
+      //     throw new BadRequestError("");
+      // }
 
-        const { title, content } = req.body;
-        const category_id = req.category_id;
-        const file = req.file;
-        // let imageUrl: string | null = null;
+      const { title, content } = req.body;
+      const category_id = req.category_id;
+      const file = req.file;
+      // let imageUrl: string | null = null;
 
-        // if (file) {
-        //     const fileName = `articles/${Date.now()}_${file.originalname}`;
-        //     const fileRef = bucket.file(fileName);
+      // if (file) {
+      //     const fileName = `articles/${Date.now()}_${file.originalname}`;
+      //     const fileRef = bucket.file(fileName);
 
-        //     await fileRef.save(file.buffer, {
-        //         contentType: file.mimetype,
-        //         public: true,
-        //         metadata: {
-        //             firebaseStorageDownloadTokens: fileName,
-        //         },
-        //     });
+      //     await fileRef.save(file.buffer, {
+      //         contentType: file.mimetype,
+      //         public: true,
+      //         metadata: {
+      //             firebaseStorageDownloadTokens: fileName,
+      //         },
+      //     });
 
-        //     imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-        // } else {
-        //     throw new BadRequestError("Image is required");
-        // }
-        const imageUrl = await uploadImageToFirebase(file, "articles");
+      //     imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+      // } else {
+      //     throw new BadRequestError("Image is required");
+      // }
+      let imageUrl: string | undefined;
+      if (file) {
+        imageUrl = await uploadImageToFirebase(file, "articles");
+      }
 
-        const article = await prisma.articles.create({
-            data: {
-                title,
-                content,
-                category_id,
-                image_url: imageUrl,
-                admin_id: req.admin?.adminId,
-            },
-        });
-        // res.json(GeneralResponse.responseWithData(article));
-        sendData(res, article);
+
+      const article = await prisma.articles.create({
+        data: {
+          title,
+          content,
+          category_id,
+          image_url: imageUrl,
+          admin_id: req.admin?.adminId,
+          slug: title.toLowerCase().replace(/ /g, "-"),
+          status: req.body.status,
+        },
+      });
+      // res.json(GeneralResponse.responseWithData(article));
+      sendData(res, article);
     } catch (error) {
-        sendError(res, error);
+      sendError(res, error);
     }
-
-});
+  }
+);
 
 export default router;

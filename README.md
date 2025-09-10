@@ -1,86 +1,189 @@
-# Profil SMKN 4 - Backend
 
-This is the backend for the SMKN 4 school profile website. It is built with Node.js, Express, and Prisma.
 
-## Getting Started
+# Backend Aplikasi Profil SMKN 4 Mataram
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge\&logo=node.js\&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge\&logo=express\&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge\&logo=typescript\&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge\&logo=postgresql\&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge\&logo=prisma\&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge\&logo=firebase\&logoColor=black)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge\&logo=docker\&logoColor=white)
 
-### Prerequisites
+---
 
-  * Node.js (v18.18 or later)
-  * npm
-  * PostgreSQL
+## 📝 Deskripsi Proyek
 
-### Installation
+Proyek ini adalah layanan **REST API (Backend)** untuk aplikasi profil sekolah **SMKN 4 Mataram**. Aplikasi ini mengelola semua data dinamis yang ditampilkan di frontend, seperti artikel, pengumuman, data guru, fasilitas, dan banyak lagi.
 
-1.  Clone the repo
-    ```sh
-    git clone https://github.com/yawpie/profilsmkn4-backend.git
-    ```
-2.  Install NPM packages
-    ```sh
-    npm install
-    ```
-3.  Set up your environment variables by creating a `.env` file in the root directory. You can use the `.env.example` as a template.
-    ```
-    DATABASE_URL="postgresql://<user>:<password>@<host>:<port>/<database>"
-    JWT_SECRET="your-secret-key"
-    ```
-4.  Apply database migrations
-    ```sh
-    npx prisma migrate dev
-    ```
+Dibangun dengan **TypeScript**, menggunakan **Express.js** sebagai framework, **Prisma** sebagai ORM, dan **PostgreSQL** sebagai database. Untuk penyimpanan file gambar, proyek ini terintegrasi dengan **Firebase Cloud Storage**.
 
-### Running the Application
+---
 
-  * **Development**
-    ```sh
-    npm run dev
-    ```
-  * **Production**
-    ```sh
-    npm run build
-    npm start
-    ```
+## ✨ Fitur Utama
 
-## API Endpoints
+* **Autentikasi & Otorisasi**: Sistem login berbasis JWT untuk admin.
+* **Manajemen Konten (CRUD)**:
 
-The following are the available API endpoints:
+  * Artikel (dengan kategori dan paginasi)
+  * Pengumuman
+  * Jurusan
+  * Fasilitas
+  * Ekstrakurikuler
+  * Data guru
+* **Unggah File**: Upload gambar ke Firebase Cloud Storage.
+* **Validasi Input**: Menggunakan Zod untuk validasi yang kuat.
+* **Docker Ready**: Tersedia konfigurasi Docker & Compose.
 
-### Authentication
+---
 
-  * `POST /api/login`: Authenticate a user and receive a JWT token.
-  * `POST /api/register`: Register a new admin user.
+## 🛠️ Teknologi yang Digunakan
 
-### Articles
+* **Runtime**: Node.js
+* **Framework**: Express.js
+* **Bahasa**: TypeScript
+* **Database**: PostgreSQL
+* **ORM**: Prisma
+* **Penyimpanan File**: Firebase Cloud Storage
+* **Autentikasi**: JSON Web Token (JWT)
+* **Validasi**: Zod
+* **Testing**: Jest & Supertest
+* **Kontainerisasi**: Docker
 
-  * `GET /api/articles`: Get a paginated list of articles.
-  * `GET /api/articles?title=<article_title>`: Get a specific article by title.
-  * `POST /api/articles`: Add a new article. Requires authentication.
-  * `PUT /api/articles/:id`: Update an existing article. Requires authentication.
-  * `DELETE /api/articles/:id`: Delete an article. Requires authentication.
+---
 
-### Categories
+## 🚀 Instalasi & Setup
 
-  * `POST /api/category`: Add a new category. Requires authentication.
+### 1. Prasyarat
 
-### Teachers
+* [Node.js](https://nodejs.org/) (v18+)
+* [Docker & Docker Compose](https://docs.docker.com/compose/)
+* [Git](https://git-scm.com/)
 
-  * `GET /api/teacher`: Get a paginated list of teachers.
-  * `GET /api/teacher?nama=<teacher_name>`: Get a specific teacher by name.
-  * `POST /api/teacher`: Add a new teacher. Requires authentication.
-  * `PUT /api/teacher/:id`: Update an existing teacher. Requires authentication.
-  * `DELETE /api/teacher/:id`: Delete a teacher. Requires authentication.
+### 2. Clone Repositori
 
-## Technologies Used
+```bash
+git clone <URL_REPOSITORI_ANDA>
+cd profilsmkn4-backend
+```
 
-  * **Node.js**: JavaScript runtime environment
-  * **Express**: Web framework for Node.js
-  * **Prisma**: Next-generation ORM for Node.js and TypeScript
-  * **PostgreSQL**: Object-relational database system
-  * **Firebase Storage**: For image uploads
-  * **jsonwebtoken**: For generating and verifying JSON Web Tokens
-  * **bcrypt**: For password hashing
-  * **multer**: Middleware for handling `multipart/form-data`
-  * **TypeScript**: Typed superset of JavaScript
+### 3. Instal Dependensi
+
+```bash
+npm install
+```
+
+### 4. Konfigurasi Lingkungan
+
+Salin file `.env.example` menjadi `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Isi variabel berikut di `.env`:
+
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/mydatabase?schema=public"
+
+# Server
+PORT=3000
+
+# JWT Secret
+JWT_SECRET="ganti-dengan-kunci-rahasia-yang-sangat-kuat"
+
+# Firebase
+FIREBASE_CREDENTIALS_BASE64="BASE64_ENCODED_SERVICE_ACCOUNT_JSON"
+FIREBASE_STORAGE_BUCKET="gs://nama-bucket-anda.appspot.com"
+```
+
+> 💡 Untuk mendapatkan `FIREBASE_CREDENTIALS_BASE64`, encode file JSON service account Firebase Anda menjadi string base64.
+
+### 5. Jalankan Database
+
+```bash
+docker-compose up -d
+```
+
+### 6. Migrasi Database
+
+```bash
+npx prisma migrate dev
+```
+
+---
+
+## ▶️ Menjalankan Aplikasi
+
+### Mode Pengembangan
+
+```bash
+npm run dev
+```
+
+Server akan berjalan di `http://localhost:3000`.
+
+### Mode Produksi
+
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 🧪 Testing
+
+Jalankan semua test menggunakan Jest:
+
+```bash
+npm test
+```
+
+---
+
+## 📖 Dokumentasi API
+
+### Dokumentasi Lengkap
+
+Tersedia di file terpisah: **[Dokumentasi Lengkap REST API](./DOCS_API.md)**
+
+### Ringkasan Endpoint
+
+| Metode | Endpoint             | Deskripsi                     | Autentikasi |
+| ------ | -------------------- | ----------------------------- | ----------- |
+| POST   | `/api/auth/register` | Mendaftarkan admin baru       | ❌           |
+| POST   | `/api/auth/login`    | Login & mendapatkan token JWT | ❌           |
+| GET    | `/api/articles`      | Mendapatkan semua artikel     | ❌           |
+| POST   | `/api/articles`      | Menambahkan artikel           | ✅           |
+| PUT    | `/api/articles/:id`  | Memperbarui artikel           | ✅           |
+| DELETE | `/api/articles/:id`  | Menghapus artikel             | ✅           |
+| GET    | `/api/teachers`      | Mendapatkan data guru         | ❌           |
+| POST   | `/api/teachers`      | Menambahkan data guru         | ✅           |
+
+> Dan masih banyak lagi...
+
+---
+
+## 📁 Struktur Folder
+
+```
+├── prisma/                # Skema dan migrasi Prisma
+├── src/
+│   ├── config/            # Konfigurasi (database, firebase)
+│   ├── errorHandler/      # Penanganan error kustom
+│   ├── middleware/        # Middleware (auth, upload, dll.)
+│   ├── routes/            # Definisi rute modular
+│   ├── tests/             # File testing (Jest)
+│   ├── types/             # Definisi TypeScript
+│   ├── utils/             # Helper & utilitas umum
+│   ├── validation/        # Validasi menggunakan Zod
+│   ├── app.ts             # Setup Express utama
+│   └── index.ts           # Titik masuk aplikasi
+├── .env                   # Variabel lingkungan (tidak untuk di-commit)
+├── Dockerfile             # Konfigurasi Docker untuk aplikasi
+├── docker-compose.yml     # Docker Compose untuk database
+├── package.json           # Dependensi & skrip
+└── tsconfig.json          # Konfigurasi TypeScript
+```
