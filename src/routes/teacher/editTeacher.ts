@@ -13,6 +13,7 @@ import {
   uploadImageToFirebase,
 } from "../../utils/firebaseHandler";
 import { upload } from "../../middleware/uploadMiddleware";
+import { deleteImage, uploadImage } from "../../utils/imageServiceHandler";
 
 const router = Router();
 
@@ -43,10 +44,10 @@ router.put(
           })
         );
         if (imageUrlToDelete.image_url) {
-          deleteFirebaseFile(imageUrlToDelete.image_url);
+          deleteImage(imageUrlToDelete.image_url);
         }
         // after deleting, upload the new file
-        imageUrl = await uploadImageToFirebase(imageFile, "teachers");
+        imageUrl = await uploadImage(imageFile, "teachers") as string | null;
       } else {
         const findImageUrl = await handlePrismaNotFound(() =>
           prisma.guru.findUnique({

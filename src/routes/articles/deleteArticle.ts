@@ -10,6 +10,7 @@ import {
 } from "../../errorHandler/responseError";
 import { bucket } from "../../config/firebase/firebase";
 import { deleteFirebaseFile } from "../../utils/firebaseHandler";
+import { deleteImage } from "../../utils/imageServiceHandler";
 // import GeneralResponse from "../../utils/generalResponse";
 
 const router = Router();
@@ -44,7 +45,8 @@ router.delete(
       console.log("deleteArticle: ", imageUrl);
 
       if (imageUrl.image_url) {
-        deleteFirebaseFile(imageUrl.image_url);
+        // deleteFirebaseFile(imageUrl.image_url);
+        deleteImage(imageUrl.image_url)
       }
 
       sendData(res, deleteArticle);

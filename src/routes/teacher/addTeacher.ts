@@ -7,6 +7,7 @@ import { sendData, sendError } from "../../utils/send";
 import { BadRequestError } from "../../errorHandler/responseError";
 import { upload } from "../../middleware/uploadMiddleware";
 import { uploadImageToFirebase } from "../../utils/firebaseHandler";
+import { uploadImage } from "../../utils/imageServiceHandler";
 
 const router = Router();
 
@@ -20,9 +21,9 @@ router.post(
     console.log("hello");
     
     try {
-      let imageUrl: string | undefined;
+      let imageUrl: string | null = null;
       if (imageFile) {
-        imageUrl = await uploadImageToFirebase(imageFile, "teachers");
+        imageUrl = await uploadImage(imageFile, "teachers");
       }
       if (!name || !jabatan) {
         throw new BadRequestError("nama dan jabatan kosong");

@@ -1,6 +1,6 @@
 import { Response } from "express";
-import { StatusCode } from "./generalResponse";
-import HttpError from "../errorHandler/responseError";
+
+import HttpError, { StatusCode } from "../errorHandler/responseError";
 
 export function sendData<T = object>(res: Response, data?: T, message: string = "success", status: StatusCode = 200) {
     res

@@ -1,8 +1,8 @@
 import { Response } from "express";
-import HttpError from "../errorHandler/responseError";
+import HttpError, { StatusCode } from "../errorHandler/responseError";
 
 
-export type StatusCode = 200 | 201 | 202 | 400 | 401 | 403 | 404 | 500;
+
 /**
  * @deprecated
  */

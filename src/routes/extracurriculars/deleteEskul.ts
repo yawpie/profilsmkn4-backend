@@ -5,8 +5,8 @@ import { handlePrismaWrite } from "../../utils/handlePrismaWrite";
 import { prisma } from "../../config/database/prisma";
 import { sendData, sendError } from "../../utils/send";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
-import { deleteFirebaseFile } from "../../utils/firebaseHandler";
 import { BadRequestError } from "../../errorHandler/responseError";
+import { deleteImage } from "../../utils/imageServiceHandler";
 
 const router = Router();
 
@@ -31,7 +31,7 @@ router.delete(
       );
 
       if (imageUrl.image_url) {
-        deleteFirebaseFile(imageUrl.image_url);
+        deleteImage(imageUrl.image_url);
       }
       const hapus = await handlePrismaWrite(() =>
         prisma.extracurriculars.delete({

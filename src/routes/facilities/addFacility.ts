@@ -9,6 +9,7 @@ import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { upload } from "../../middleware/uploadMiddleware";
 import { uploadImageToFirebase } from "../../utils/firebaseHandler";
 import { FacilitiesRequestBody } from "../../types/facilities";
+import { uploadImage } from "../../utils/imageServiceHandler";
 
 const router: Router = Router();
 
@@ -25,9 +26,13 @@ router.post(
         throw new BadRequestError("Name and status are required");
       }
       const file = req.file;
-      let imageUrl: string | undefined;
+      let imageUrl: string | null = null;
       if (file) {
-        imageUrl = await uploadImageToFirebase(file, "facilities");
+        // const uploadImageJson = await uploadImage(file, "facilities");
+        // console.log(uploadImageJson);
+        
+        // imageUrl = uploadImageJson.url;
+        imageUrl = await uploadImage(file, "facilities");
       }
       const createFacilities = await handlePrismaWrite(() =>
         prisma.facilities.create({
@@ -44,6 +49,8 @@ router.post(
 
       sendData(res, createFacilities);
     } catch (err) {
+      console.error(err);
+      
       sendError(res, err);
     }
   }

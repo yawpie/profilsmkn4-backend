@@ -10,6 +10,7 @@ import { upload } from "../../middleware/uploadMiddleware";
 import { uploadImageToFirebase } from "../../utils/firebaseHandler";
 import { FacilitiesRequestBody } from "../../types/facilities";
 import { ExtraCurricularsRequestBody } from "../../types/extracurriculars";
+import { uploadImage } from "../../utils/imageServiceHandler";
 
 const router: Router = Router();
 
@@ -25,9 +26,9 @@ router.post(
       }
       
       const file = req.file;
-      let imageUrl: string | undefined;
+      let imageUrl: string | null = null;
       if (file) {
-        imageUrl = await uploadImageToFirebase(file, "extracurriculars");
+        imageUrl = await uploadImage(file, "extracurriculars");
       }
       const create = await handlePrismaWrite(() =>
         prisma.extracurriculars.create({

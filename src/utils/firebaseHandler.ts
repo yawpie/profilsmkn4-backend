@@ -1,6 +1,9 @@
 import { bucket } from "../config/firebase/firebase";
 import { BadRequestError, FirebaseError } from "../errorHandler/responseError";
-
+/**
+ * @deprecated use deleteImage from imageServiceHandler.ts
+ * @param url 
+ */
 export async function deleteFirebaseFile(url: string) {
   const storagePath = new URL(url).pathname.replace(/^\/[^/]+\//, "");
 
@@ -12,6 +15,13 @@ export async function deleteFirebaseFile(url: string) {
   }
 }
 
+/**
+ * Upload an image to Firebase Storage
+ * @param file The image file to upload
+ * @param folderName The folder name in Firebase Storage
+ * @returns The download URL of the uploaded image
+ * @deprecated use uploadImage from imageServiceHandler.ts
+ */
 export async function uploadImageToFirebase(
   file: Express.Multer.File | undefined | null,
   folderName: string

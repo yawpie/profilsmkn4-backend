@@ -11,6 +11,7 @@ import { uploadImageToFirebase } from "../../utils/firebaseHandler";
 import { FacilitiesRequestBody } from "../../types/facilities";
 import { ExtraCurricularsRequestBody } from "../../types/extracurriculars";
 import { MajorsRequestBody } from "../../types/majors";
+import { uploadImage } from "../../utils/imageServiceHandler";
 
 const router: Router = Router();
 
@@ -25,9 +26,9 @@ router.post(
         throw new BadRequestError("Name are required");
       }
       const file = req.file;
-      let imageUrl: string | undefined;
+      let imageUrl: string | null = null;
       if (file) {
-        imageUrl = await uploadImageToFirebase(file, "majors");
+        imageUrl = await uploadImage(file, "majors");
       }
       const create = await handlePrismaWrite(() =>
         prisma.majors.create({

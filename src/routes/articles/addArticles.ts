@@ -9,6 +9,7 @@ import { ArticlesBodyRequest, ExtraCategoryField } from "../../types/category";
 import { BadRequestError } from "../../errorHandler/responseError";
 import { sendData, sendError } from "../../utils/send";
 import { uploadImageToFirebase } from "../../utils/firebaseHandler";
+import { uploadImage } from "../../utils/imageServiceHandler";
 
 const router: Router = Router();
 
@@ -47,9 +48,9 @@ router.post(
       // } else {
       //     throw new BadRequestError("Image is required");
       // }
-      let imageUrl: string | undefined;
+      let imageUrl: string | null = null;
       if (file) {
-        imageUrl = await uploadImageToFirebase(file, "articles");
+        imageUrl = await uploadImage(file, "articles");
       }
 
 

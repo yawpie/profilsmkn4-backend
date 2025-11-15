@@ -14,6 +14,7 @@ import {
 } from "../../utils/firebaseHandler";
 import { upload } from "../../middleware/uploadMiddleware";
 import { FacilitiesRequestBody } from "../../types/facilities";
+import { deleteImage, uploadImage } from "../../utils/imageServiceHandler";
 
 const router = Router();
 
@@ -44,10 +45,10 @@ router.put(
           })
         );
         if (imageUrlToDelete.image_url) {
-          deleteFirebaseFile(imageUrlToDelete.image_url);
+          deleteImage(imageUrlToDelete.image_url);
         }
         // after deleting, upload the new file
-        imageUrl = await uploadImageToFirebase(imageFile, "teachers");
+        imageUrl = await uploadImage(imageFile, "teachers");
       } else {
         const findImageUrl = await handlePrismaNotFound(() =>
           prisma.facilities.findUnique({

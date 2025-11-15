@@ -1,4 +1,4 @@
-import { StatusCode } from "../utils/generalResponse";
+export type StatusCode = 200 | 201 | 202 | 400 | 401 | 403 | 404 | 500;
 
 
 export default class HttpError extends Error {
@@ -45,6 +45,9 @@ export class UnexpectedError extends HttpError {
   }
 }
 
+/**
+ * @deprecated
+ */
 export class FirebaseError extends HttpError {
   constructor(message = "Firebase error") {
     super(message, 500);

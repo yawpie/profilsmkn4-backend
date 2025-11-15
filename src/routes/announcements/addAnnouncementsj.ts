@@ -3,14 +3,8 @@ import { prisma } from "../../config/database/prisma";
 import { BadRequestError } from "../../errorHandler/responseError";
 import { sendData, sendError } from "../../utils/send";
 import { AuthRequest } from "../../types/auth";
-import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { handlePrismaWrite } from "../../utils/handlePrismaWrite";
 import { checkAccessWithCookie } from "../../middleware/authMiddleware";
-import { upload } from "../../middleware/uploadMiddleware";
-import { uploadImageToFirebase } from "../../utils/firebaseHandler";
-import { FacilitiesRequestBody } from "../../types/facilities";
-import { ExtraCurricularsRequestBody } from "../../types/extracurriculars";
-import { MajorsRequestBody } from "../../types/majors";
 import { AnnouncementsRequestBody } from "../../types/announcements";
 
 const router: Router = Router();

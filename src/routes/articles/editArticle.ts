@@ -6,12 +6,13 @@ import { upload } from "../../middleware/uploadMiddleware";
 // import GeneralResponse from "../../utils/generalResponse";
 import { ArticlesBodyRequest, ExtraCategoryField } from "../../types/category";
 import { checkCategoryId } from "../../middleware/checkCategoryIdMiddleware";
-import { bucket } from "../../config/firebase/firebase";
+// import { bucket } from "../../config/firebase/firebase";
 import { sendData, sendError } from "../../utils/send";
 import {
   BadRequestError,
   UnexpectedError,
 } from "../../errorHandler/responseError";
+import { deleteImage, uploadImage } from "../../utils/imageServiceHandler";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 
 const router = Router();
@@ -43,22 +44,23 @@ router.put(
           })
         );
         if (url.image_url) {
-          bucket.file(url.image_url).delete();
+          // bucket.file(url.image_url).delete();
+          deleteImage(url.image_url)
         }
         // second edit the url in the database
 
         const fileName = `articles/${Date.now()}_${file.originalname}`;
-        const fileRef = bucket.file(fileName);
+        // const fileRef = bucket.file(fileName);
 
-        await fileRef.save(file.buffer, {
-          contentType: file.mimetype,
-          public: true,
-          metadata: {
-            firebaseStorageDownloadTokens: fileName,
-          },
-        });
+        // await fileRef.save(file.buffer, {
+        //   contentType: file.mimetype,
+        //   public: true,
+        //   metadata: {
+        //     firebaseStorageDownloadTokens: fileName,
+        //   },
+        // });
 
-        imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+        imageUrl = await uploadImage(file, "articles");
       } else {
         // search for the imageurl if the image is not sent
         const getImageUrl = await prisma.articles.findFirst({

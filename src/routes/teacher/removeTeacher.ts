@@ -9,6 +9,7 @@ import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { sendData, sendError } from "../../utils/send";
 import { NotFoundError } from "../../errorHandler/responseError";
 import { deleteFirebaseFile } from "../../utils/firebaseHandler";
+import { deleteImage } from "../../utils/imageServiceHandler";
 
 const router = Router();
 
@@ -32,7 +33,7 @@ router.delete(
         })
       );
       if (imageUrlToDelete.image_url) {
-        deleteFirebaseFile(imageUrlToDelete.image_url);
+        deleteImage(imageUrlToDelete.image_url);
       }
 
       const deleted = await handlePrismaNotFound(

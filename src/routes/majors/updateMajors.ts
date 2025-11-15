@@ -8,14 +8,11 @@ import { prisma } from "../../config/database/prisma";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { sendData, sendError } from "../../utils/send";
-import {
-  deleteFirebaseFile,
-  uploadImageToFirebase,
-} from "../../utils/firebaseHandler";
 import { upload } from "../../middleware/uploadMiddleware";
 import { FacilitiesRequestBody } from "../../types/facilities";
 import { ExtraCurricularsRequestBody } from "../../types/extracurriculars";
 import { MajorsRequestBody } from "../../types/majors";
+import { deleteImage, uploadImage } from "../../utils/imageServiceHandler";
 
 const router = Router();
 
@@ -46,10 +43,10 @@ router.put(
           })
         );
         if (imageUrlToDelete.image_url) {
-          deleteFirebaseFile(imageUrlToDelete.image_url);
+          deleteImage(imageUrlToDelete.image_url);
         }
         // after deleting, upload the new file
-        imageUrl = await uploadImageToFirebase(imageFile, "teachers");
+        imageUrl = await uploadImage(imageFile, "teachers");
       } else {
         const findImageUrl = await handlePrismaNotFound(() =>
           prisma.majors.findUnique({
