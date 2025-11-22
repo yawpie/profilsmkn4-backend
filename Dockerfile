@@ -85,6 +85,11 @@ RUN groupadd -r app && useradd -r -g app app \
 # copy only production node_modules + dist + necessary files
 COPY --chown=app:app --from=prod-deps /app/node_modules ./node_modules
 COPY --chown=app:app --from=build /app/dist ./dist
+# salin hasil generate prisma (src/generated) ke dalam dist/generated
+COPY --chown=app:app --from=deps /app/src/generated ./dist/generated 
+
+# salin prisma native engines (agar prisma native binary tersedia)
+COPY --chown=app:app --from=prod-deps /app/node_modules/.prisma ./node_modules/.prisma 
 COPY --chown=app:app --from=deps /app/prisma ./prisma
 COPY --chown=app:app --from=deps /app/package*.json ./
 
