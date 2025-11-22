@@ -1,67 +1,94 @@
 # syntax=docker/dockerfile:1
 
 ############################
-# 0) args
+# args
 ############################
-ARG NODE_VERSION=20
-ARG PNPM_VERSION=8
+ARG NODE_VERSION=20-slim
+ARG CI=true
 
 ############################
 # 1) deps: install node_modules & generate prisma client
 ############################
-FROM node:${NODE_VERSION}-alpine AS deps
+FROM node:${NODE_VERSION} AS deps
 WORKDIR /app
 
-# ensure we have bash tools (optional), and set safe permissions
-RUN apk add --no-cache libc6-compat
+# Use apt-get (Debian-based). Install certs & openssl libs required by Prisma.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      ca-certificates \
+      openssl \
+      # try to ensure libssl exists; Debian slim may have libssl3
+      libssl3 || true \
+ && rm -rf /var/lib/apt/lists/*
 
-# copy package manifests only to leverage docker cache
-COPY package.json package-lock.json ./   
-# or use pnpm-lock.yaml if applicable
+# copy package manifests for better cache
+COPY package.json package-lock.json ./
 
-# install production + dev deps because we need prisma + ts build tools
-RUN npm ci
+# install all deps (dev + prod) because we need prisma + build tools
+RUN npm ci --no-audit --no-fund
 
-# copy prisma schema early so we can run prisma generate
+# copy prisma schema so generate can run
 COPY prisma ./prisma
-# (also copy any generator config if present)
 
-# Run prisma generate to create the generated client into node_modules/@prisma/client
-# This must run where node_modules exist (so @prisma/client is installed)
+# generate prisma client (runs with same libc as this stage)
 RUN npx prisma generate
 
-# copy rest of source for build stage
+# copy everything else (source) so subsequent stages can reuse layer when changed
 COPY . .
 
 ############################
 # 2) build: compile TypeScript
 ############################
-FROM node:${NODE_VERSION}-alpine AS build
+FROM node:${NODE_VERSION} AS build
 WORKDIR /app
 
-# copy deps + generated client
+# copy deps + generated client and source from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app ./
 
-# ensure the prebuild step runs (we will run tsc)
-# If you use a build script (npm run build) that expects prebuild, it'll run prisma generate again if configured.
+# build (assumes npm run build exists and compiles to /app/dist)
 RUN npm run build
 
 ############################
-# 3) runner: production image (only production deps + build)
+# 3) prod: prune dev deps (optional) -> produce smaller node_modules
 ############################
-FROM node:${NODE_VERSION}-alpine AS runner
+FROM node:${NODE_VERSION} AS prod-deps
+WORKDIR /app
+
+# copy package files and node_modules from build/deps
+COPY --from=deps /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+
+# prune dev dependencies to keep only production deps
+RUN npm prune --omit=dev --no-audit --no-fund
+
+############################
+# 4) runner: production image
+############################
+FROM node:${NODE_VERSION} AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# create non-root user (optional but recommended)
-RUN addgroup -S app && adduser -S app -G app
-USER app
+# Install runtime libs (again) for final image
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      ca-certificates \
+      openssl \
+      libssl3 || true \
+ && rm -rf /var/lib/apt/lists/*
 
-# copy prod deps + build output
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/package*.json ./
+# create non-root user and group, and directory for uploads
+RUN groupadd -r app && useradd -r -g app app \
+ && mkdir -p /app/uploads \
+ && chown -R app:app /app /app/uploads
+
+# copy only production node_modules + dist + necessary files
+COPY --chown=app:app --from=prod-deps /app/node_modules ./node_modules
+COPY --chown=app:app --from=build /app/dist ./dist
+COPY --chown=app:app --from=deps /app/prisma ./prisma
+COPY --chown=app:app --from=deps /app/package*.json ./
+
+USER app
 
 EXPOSE 3001
 CMD ["node", "dist/index.js"]
