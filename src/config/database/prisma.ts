@@ -1,5 +1,6 @@
-import { PrismaClient } from '../../generated/prisma/client';
-import { config } from "dotenv";
+// import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../generated/prisma';
+// import { config } from "dotenv";
 
 // if (process.env.NODE_ENV === "test") {
     // config({ path: ".env.test" });

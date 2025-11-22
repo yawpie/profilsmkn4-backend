@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:17.5
-    container_name: db-smkn4
+    container_name: smkn4-db
     ports:
       - "5432:5432"
     restart: always
@@ -15,9 +15,9 @@ services:
 
   backend:
     build: .
-    container_name: backend-smkn4-ts
+    container_name: smkn4-backend
     ports:
-      - "3000:3000"
+      - "3001:3001"
     volumes:
       - .:/app
       - /app/node_modules # Hindari overwrite node_modules
