@@ -89,7 +89,7 @@ swagger.json
 swagger.yaml
 
 # Prisma
-prisma/migrations/
+
 prisma/dev.db
 prisma/dev.sqlite
 /src/generated/prisma

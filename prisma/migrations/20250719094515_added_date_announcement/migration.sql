@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "announcements" ADD COLUMN     "date" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "image_url" VARCHAR(255);

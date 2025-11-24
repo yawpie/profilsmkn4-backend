@@ -1,0 +1,450 @@
+openapi: 3.0.3
+info:
+  title: SMKN4 Profile API
+  version: 1.0.0
+  description: REST API for SMKN4 profile content management.
+servers:
+  - url: http://api.smkn4.sch.id:3000
+    description: Local development
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+  schemas:
+    Article:
+      type: object
+      properties:
+        articles_id: { type: string, format: uuid }
+        title: { type: string }
+        content: { type: string }
+        image_url: { type: string, nullable: true }
+        published_date: { type: string, format: date-time, nullable: true }
+        slug: { type: string, nullable: true }
+        status: { $ref: "#/components/schemas/ArticleStatus" }
+        admin:
+          {
+            type: object,
+            properties: { username: { type: string } },
+            nullable: true,
+          }
+        category:
+          {
+            type: object,
+            properties: { name: { type: string } },
+            nullable: true,
+          }
+    ArticleStatus:
+      type: string
+      enum: [DRAFT, PUBLISHED]
+    FacilityStatus:
+      type: string
+      enum: [TERSEDIA, PERBAIKAN, DIGUNAKAN]
+    Facility:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        location: { type: string, nullable: true }
+        status: { $ref: "#/components/schemas/FacilityStatus" }
+        image_url: { type: string, nullable: true }
+    Teacher:
+      type: object
+      properties:
+        guru_id: { type: string, format: uuid }
+        name: { type: string }
+        jabatan: { type: string }
+        nip: { type: string, nullable: true }
+        image_url: { type: string, nullable: true }
+    Extracurricular:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        image_url: { type: string, nullable: true }
+    Pagination:
+      type: object
+      properties:
+        total: { type: integer }
+        totalPages: { type: integer }
+        currentPage: { type: integer }
+        perPage: { type: integer }
+    PaginatedArticles:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Article" }
+        pagination: { $ref: "#/components/schemas/Pagination" }
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message: { type: string }
+            type: { type: string }
+paths:
+  /login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        "200":
+          description: Successful login
+          headers:
+            Set-Cookie:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  access_token: { type: string }
+        "400":
+          {
+            description: Bad request,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/ErrorResponse" } },
+              },
+          }
+  /register:
+    post:
+      summary: Register new admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        "200":
+          {
+            description: Created,
+            content: { application/json: { schema: { type: object } } },
+          }
+        "400": { description: Bad request }
+  /refresh:
+    post:
+      summary: Refresh tokens
+      responses:
+        "200": { description: New tokens issued }
+        "400": { description: Invalid refresh token }
+  /logout:
+    post:
+      summary: Logout
+      responses:
+        "200": { description: Logged out }
+  /articles/:
+    get:
+      summary: List/search articles
+      parameters:
+        - in: query
+          name: title
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Paginated articles
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedArticles" }
+    post:
+      summary: Create article
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, content]
+              properties:
+                title: { type: string }
+                content: { type: string }
+                category_id: { type: string, format: uuid }
+                status: { $ref: "#/components/schemas/ArticleStatus" }
+                image: { type: string, format: binary }
+      responses:
+        "200":
+          {
+            description: Created,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Article" } },
+              },
+          }
+  /articles/{id}:
+    put:
+      summary: Update article
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                content: { type: string }
+                category_id: { type: string, format: uuid }
+                image: { type: string, format: binary }
+      responses:
+        "200": { description: Updated }
+    delete:
+      summary: Delete article
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Deleted }
+  /teacher/:
+    get:
+      summary: List/search teachers
+      parameters:
+        - in: query
+          name: nama
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        "200": { description: OK }
+    post:
+      summary: Create teacher
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [name, jabatan]
+              properties:
+                name: { type: string }
+                jabatan: { type: string }
+                nip: { type: string }
+                image: { type: string, format: binary }
+      responses:
+        "200":
+          {
+            description: Created,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Teacher" } },
+              },
+          }
+  /teacher/{id}:
+    put:
+      summary: Update teacher
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                jabatan: { type: string }
+                image: { type: string, format: binary }
+      responses:
+        "200": { description: Updated }
+    delete:
+      summary: Delete teacher
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Deleted }
+  /facilities/:
+    get:
+      summary: List/search facilities
+      parameters:
+        - in: query
+          name: name
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        "200": { description: OK }
+    post:
+      summary: Create facility
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [name, status]
+              properties:
+                name: { type: string }
+                description: { type: string }
+                location: { type: string }
+                status: { $ref: "#/components/schemas/FacilityStatus" }
+                image: { type: string, format: binary }
+      responses:
+        "200":
+          {
+            description: Created,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Facility" } },
+              },
+          }
+  /facilities/{id}:
+    put:
+      summary: Update facility
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                location: { type: string }
+                status: { $ref: "#/components/schemas/FacilityStatus" }
+                image: { type: string, format: binary }
+      responses:
+        "200": { description: Updated }
+    delete:
+      summary: Delete facility
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Deleted }
+  /extracurriculars/:
+    get:
+      summary: List/search extracurriculars
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: query
+          name: name
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        "200": { description: OK }
+    post:
+      summary: Create extracurricular
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                description: { type: string }
+                image: { type: string, format: binary }
+      responses:
+        "200":
+          {
+            description: Created,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Extracurricular" } },
+              },
+          }
+  /extracurriculars/{id}:
+    put:
+      summary: Update extracurricular
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                image: { type: string, format: binary }
+      responses:
+        "200": { description: Updated }
+    delete:
+      summary: Delete extracurricular
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Deleted }
+security: []
