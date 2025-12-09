@@ -13,8 +13,20 @@ model admin {
   admin_id        String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   username        String     @db.VarChar(255) @unique
   hashed_password String     @db.VarChar(255)
+  // refresh_tokens  refresh_tokens[]
   articles        articles[]
 }
+
+// model refresh_tokens {
+//   token_hashed      String   @id @db.VarChar(255)
+//   admin_id   String?  @db.Uuid
+//   created_at DateTime @default(now()) @db.Timestamp(6)
+//   expired_at DateTime @db.Timestamp(6)
+//   admin      admin?   @relation(fields: [admin_id], references: [admin_id], onUpdate: NoAction, map: "fk_refresh_token_admin")
+
+
+//   @@index([admin_id], map: "idx_refresh_tokens_admin")
+// }
 
 model articles {
   articles_id    String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
@@ -83,10 +95,33 @@ model extracurriculars{
 
 }
 
+model slides{
+  id            String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  image_url     String?  @db.VarChar(255)
+  alt           String  @db.VarChar(255)
+  title         String  @db.VarChar(255)
+  subtitle      String  @db.VarChar(255)
+  description   String  @db.VarChar(255)
+  gradientFrom  String  @db.VarChar(255)
+  gradientTo    String  @db.VarChar(255)
+  order         Int
+  isActive      Boolean @default(true)
+}
+
+model achievements{
+  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title         String   @db.VarChar(255)
+  publishDate   DateTime @default(now())
+  description   String   @db.Text
+  content       String   @db.Text
+  image_url     String?  @db.VarChar(255)
+}
+
 enum status_facilities{
   TERSEDIA
   PERBAIKAN
   DIGUNAKAN
+  TIDAK_TERSEDIA
 }
 
 enum status{

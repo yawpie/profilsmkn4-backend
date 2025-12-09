@@ -18,11 +18,11 @@ import { deleteImage, uploadImage } from "../../utils/imageServiceHandler";
 const router = Router();
 
 router.put(
-  "/:id",
+  "/",
   checkAccessWithCookie,
   upload.single("image"),
   async (req: AuthRequest<TeacherRequestBody>, res: Response) => {
-    const guru_id = req.params.id;
+    const guru_id = req.query.id as string;
     const { name, jabatan } = req.body;
     // if (!name || !jabatan) {
     //     res.status(404).json(GeneralResponse.responseWithError("nama dan jabatan kosong!"));

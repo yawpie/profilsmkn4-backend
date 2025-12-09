@@ -7,7 +7,7 @@ export function sendData<T = object>(res: Response, data?: T, message: string = 
         .status(status)
         .json({
             message,
-            data
+            ...data
         });
 }
 

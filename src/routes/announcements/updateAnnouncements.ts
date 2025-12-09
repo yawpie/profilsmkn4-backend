@@ -21,11 +21,11 @@ import { AnnouncementsRequestBody } from "../../types/announcements";
 const router = Router();
 
 router.put(
-  "/:id",
+  "/",
   checkAccessWithCookie,
   upload.single("image"),
   async (req: AuthRequest<AnnouncementsRequestBody>, res: Response) => {
-    const id = req.params.id;
+    const id = req.query.id;
     const { title, content, date, status } = req.body;
 
     // if (!name || !jabatan) {
@@ -53,6 +53,8 @@ router.put(
       sendData(res, updated);
     } catch (error) {
       // res.json(GeneralResponse.sendError(error));
+      console.log(error);
+      
       sendError(res, error);
     }
   }

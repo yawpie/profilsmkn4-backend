@@ -1,11 +1,11 @@
 openapi: 3.0.3
 info:
   title: SMKN4 Profile API
-  version: 1.0.0
+  version: 0.1.1
   description: REST API for SMKN4 profile content management.
 servers:
-  - url: http://api.smkn4.sch.id:3000
-    description: Local development
+  - url: http://api.smkn4.sch.id
+    description: Main API
 components:
   securitySchemes:
     cookieAuth:
@@ -16,6 +16,7 @@ components:
     Article:
       type: object
       properties:
+        message: { type: string, nullable: true }
         articles_id: { type: string, format: uuid }
         title: { type: string }
         content: { type: string }
@@ -40,7 +41,7 @@ components:
       enum: [DRAFT, PUBLISHED]
     FacilityStatus:
       type: string
-      enum: [TERSEDIA, PERBAIKAN, DIGUNAKAN]
+      enum: [TERSEDIA, PERBAIKAN, DIGUNAKAN, TIDAK_TERSEDIA]
     Facility:
       type: object
       properties:
@@ -65,6 +66,49 @@ components:
         name: { type: string }
         description: { type: string, nullable: true }
         image_url: { type: string, nullable: true }
+    Slide:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        image: { type: string }
+        alt: { type: string }
+        title: { type: string }
+        subtitle: { type: string }
+        description: { type: string }
+        gradientFrom: { type: string }
+        gradientTo: { type: string }
+        order: { type: integer }
+        isActive: { type: boolean }
+    Achievement:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        publishDate: { type: string, format: date-time }
+        description: { type: string }
+        content: { type: string }
+        image: { type: string, nullable: true }
+    Announcement:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        content: { type: string }
+        date: { type: string, format: date-time }
+        image_url: { type: string, nullable: true }
+        status: { $ref: "#/components/schemas/ArticleStatus" }
+    Major:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        image_url: { type: string, nullable: true }
+    Category:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
     Pagination:
       type: object
       properties:
@@ -154,6 +198,29 @@ paths:
       summary: Logout
       responses:
         "200": { description: Logged out }
+  /category/:
+    post:
+      summary: Create category
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [category_name]
+              properties:
+                category_name: { type: string }
+      responses:
+        "200":
+          {
+            description: Created,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Category" } },
+              },
+          }
   /articles/:
     get:
       summary: List/search articles
@@ -231,7 +298,7 @@ paths:
           schema: { type: string }
       responses:
         "200": { description: Deleted }
-  /teacher/:
+  /teachers/:
     get:
       summary: List/search teachers
       parameters:
@@ -271,7 +338,7 @@ paths:
                   { schema: { $ref: "#/components/schemas/Teacher" } },
               },
           }
-  /teacher/{id}:
+  /teachers/{id}:
     put:
       summary: Update teacher
       security: [{ cookieAuth: [] }]
@@ -379,11 +446,11 @@ paths:
   /extracurriculars/:
     get:
       summary: List/search extracurriculars
-      security: [{ cookieAuth: [] }]
       parameters:
         - in: query
-          name: name
-          schema: { type: string }
+          name: id
+          schema: { type: string, format: uuid }
+          description: Get specific extracurricular by ID
         - in: query
           name: page
           schema: { type: integer }
@@ -439,6 +506,326 @@ paths:
         "200": { description: Updated }
     delete:
       summary: Delete extracurricular
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Deleted }
+  /slides/:
+    get:
+      summary: List all slides ordered by order field
+      responses:
+        "200":
+          description: Array of slides
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Slide" }
+    post:
+      summary: Create slide
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                [
+                  alt,
+                  title,
+                  subtitle,
+                  description,
+                  gradientFrom,
+                  gradientTo,
+                  order,
+                ]
+              properties:
+                image: { type: string, format: binary }
+                alt: { type: string }
+                title: { type: string }
+                subtitle: { type: string }
+                description: { type: string }
+                gradientFrom: { type: string }
+                gradientTo: { type: string }
+                order: { type: integer }
+                isActive: { type: boolean }
+      responses:
+        "200":
+          {
+            description: Created,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Slide" } },
+              },
+          }
+  /slides/{id}:
+    put:
+      summary: Update slide
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [alt, title]
+              properties:
+                image: { type: string, format: binary }
+                alt: { type: string }
+                title: { type: string }
+                subtitle: { type: string }
+                description: { type: string }
+                gradientFrom: { type: string }
+                gradientTo: { type: string }
+                order: { type: integer }
+                isActive: { type: boolean }
+      responses:
+        "200": { description: Updated }
+    delete:
+      summary: Delete slide
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Deleted }
+  /achievements/:
+    get:
+      summary: List achievements with pagination or get single by ID
+      parameters:
+        - in: query
+          name: id
+          schema: { type: string, format: uuid }
+          description: Get specific achievement by ID
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Paginated achievements or single achievement
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Achievement"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: "#/components/schemas/Achievement" }
+                      total: { type: integer }
+                      page: { type: integer }
+                      pageSize: { type: integer }
+                      hasMore: { type: boolean }
+    post:
+      summary: Create achievement
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, description, content]
+              properties:
+                title: { type: string }
+                publishDate: { type: string, format: date-time }
+                description: { type: string }
+                content: { type: string, description: HTML content }
+                image: { type: string, format: binary }
+      responses:
+        "200":
+          {
+            description: Created,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Achievement" } },
+              },
+          }
+  /achievements/{id}:
+    put:
+      summary: Update achievement
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, description, content]
+              properties:
+                title: { type: string }
+                publishDate: { type: string, format: date-time }
+                description: { type: string }
+                content: { type: string }
+                image: { type: string, format: binary }
+      responses:
+        "200": { description: Updated }
+    delete:
+      summary: Delete achievement
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Deleted }
+  /announcement/:
+    get:
+      summary: List announcements with pagination
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        "200": { description: Paginated announcements }
+    post:
+      summary: Create announcement
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, content]
+              properties:
+                title: { type: string }
+                content: { type: string }
+                date: { type: string, format: date-time }
+                status: { $ref: "#/components/schemas/ArticleStatus" }
+                image: { type: string, format: binary }
+      responses:
+        "200":
+          {
+            description: Created,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Announcement" } },
+              },
+          }
+  /announcement/{id}:
+    put:
+      summary: Update announcement
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                content: { type: string }
+                date: { type: string, format: date-time }
+                status: { $ref: "#/components/schemas/ArticleStatus" }
+                image: { type: string, format: binary }
+      responses:
+        "200": { description: Updated }
+    delete:
+      summary: Delete announcement
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Deleted }
+  /majors/:
+    get:
+      summary: List majors with pagination or search
+      parameters:
+        - in: query
+          name: name
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        "200": { description: Paginated majors }
+    post:
+      summary: Create major
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                description: { type: string }
+                image: { type: string, format: binary }
+      responses:
+        "200":
+          {
+            description: Created,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Major" } },
+              },
+          }
+  /majors/{id}:
+    put:
+      summary: Update major
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                image: { type: string, format: binary }
+      responses:
+        "200": { description: Updated }
+    delete:
+      summary: Delete major
       security: [{ cookieAuth: [] }]
       parameters:
         - in: path

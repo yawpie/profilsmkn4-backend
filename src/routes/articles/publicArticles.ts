@@ -58,13 +58,12 @@ const router = Router();
 // ! warning: might error in pagination
 router.get("/", async (req: Request, res: Response) => {
   const articleTitle = req.query.title as string;
-
   try {
     // Case 1: If `article_title` is provided, return a specific article
     if (articleTitle) {
       const article = await handlePrismaNotFound(
         () =>
-          prisma.articles.findFirst({
+          prisma.articles.findMany({
             where: {
               title: {
                 contains: articleTitle,
@@ -78,8 +77,27 @@ router.get("/", async (req: Request, res: Response) => {
       sendData(res, article);
       return;
     }
+    // Case 2: If `id` is provided, return a specific article
+    const id = req.query.id as string;
+    if (id) {
+      const article = await handlePrismaNotFound(
+        () =>
+          prisma.articles.findUnique({
+            where: {
+              articles_id: id,
+            },include: {
+              admin: { select: { username: true } },
+              category: { select: { name: true } },
+            },
+            omit: { admin_id: true, category_id: true },
+          }),
+        "Article not found"
+      );
+      sendData(res, article);
+      return;
+    }
 
-    // Case 2: If `article_title` is not provided, return paginated list
+    // Case 3: If `article_title` is not provided, return paginated list
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * pageSize;

@@ -16,15 +16,18 @@ export function checkAccessWithCookie(
     return;
   }
   const request = req;
-  console.log("Request:", request.cookies);
+  // console.log("Request:", request.cookies);
 
   const accessToken = req.cookies?.access_token;
-  console.log("accessToken:", accessToken);
+  // console.log("accessToken:", accessToken);
+  // const refreshToken = req.cookies?.refresh_token;
 
   try {
     if (!accessToken) {
+
       throw new UnauthorizedError("Unauthorized");
     }
+    
     const decoded = verifyJwt(accessToken);
     if (!decoded) {
       throw new UnauthorizedError("Invalid token");

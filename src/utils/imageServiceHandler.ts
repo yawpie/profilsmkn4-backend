@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 // import FormData from "form-data";
-
+// import fetch from "node-fetch";
 const UPLOAD_ENDPOINT = "http://localhost:4000/images"; // change to your endpoint
 
 /**
@@ -21,6 +21,8 @@ export async function uploadImage(
   //     filename: file.originalname,
   //     contentType: file.mimetype,
   //   });
+  console.log(file.buffer);
+
   formData.append(
     "image",
     new Blob([new Uint8Array(file.buffer)], { type: file.mimetype }),
@@ -35,22 +37,36 @@ export async function uploadImage(
 
   const response = await fetch(uploadUrl, {
     method: "POST",
-    body: formData as any,
     headers: {
+      // ...formData.getHeaders(),
       "x-api-key": process.env.IMAGE_SERVICE_API_KEY || "",
     },
+    body: formData,
   });
 
   if (!response.ok) {
     // throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
     console.error(`Upload failed: ${response.status} ${response.statusText}`);
+    // console.log("Upload failed with status:", response.status);
+    
     return null;
   }
-
-  const data = await response.json();
+  type ImgServiceData = {
+    url: string;
+    id: string;
+    originalName: string;
+    f1leName: string;
+    mimeType: string;
+    size: number;
+    path: string;
+    createdAt: Date;
+  };
+  const data = await response.json() as ImgServiceData;
   const imageUrl = data.url;
   if (!imageUrl) {
-    console.error("Upload response missing URL");
+    // console.error("Upload response missing URL");
+    console.log("data: ", data);
+    
     return null;
   }
   return imageUrl as string;

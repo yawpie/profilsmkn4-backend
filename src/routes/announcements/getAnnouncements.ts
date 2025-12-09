@@ -10,23 +10,19 @@ const router = Router();
 
 router.get(
   "/",
-  checkAccessWithCookie,
   async (req: AuthRequest, res: Response) => {
-    const title = req.query.title as string;
+    const id = req.query.id as string;
 
     try {
-      if (title) {
+      if (id) {
         const eskul = await handlePrismaNotFound(
           () =>
-            prisma.majors.findMany({
+            prisma.announcements.findUnique({
               where: {
-                name: {
-                  contains: title,
-                  mode: "insensitive",
-                },
+                id: id,
               },
             }),
-          "Extracurricular not found"
+          "Announcement not found"
         );
         sendData(res, eskul);
         return;

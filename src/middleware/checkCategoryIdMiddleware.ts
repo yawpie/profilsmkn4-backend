@@ -6,14 +6,19 @@ import { ArticlesBodyRequest, CategoryRequest, ExtraCategoryField } from "../typ
 import HttpError, { BadRequestError, NotFoundError } from "../errorHandler/responseError";
 import { sendError } from "../utils/send";
 
-
+/**
+ * @deprecated
+ * @param req 
+ * @param res 
+ * @param next 
+ */
 export async function checkCategoryId(req: AuthRequest<ArticlesBodyRequest, any, any, ExtraCategoryField>, res: Response, next: NextFunction) {
-    const categoryName = req.body.category_name;
+    let categoryName = req.body.category_name;
     try {
         if (!categoryName) {
             // res.status(400).json(GeneralResponse.responseWithError("Category must be provided!"));
-            throw new BadRequestError("Category must be provided!");
-
+            // throw new BadRequestError("Category must be provided!");
+            categoryName = "default";
         }
 
         const category = await prisma.category.findFirst({

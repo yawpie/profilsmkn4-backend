@@ -31,6 +31,20 @@ router.get("/", async (req: AuthRequest, res: Response) => {
       sendData(res, guru);
       return;
     }
+    const guruId = req.query.id as string;
+    if (guruId) {
+      const guru = await handlePrismaNotFound(
+        () =>
+          prisma.guru.findUnique({
+            where: {
+              guru_id: guruId,
+            },
+          }),
+        "guru not found"
+      );
+      sendData(res, guru);
+      return;
+    }
 
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.limit as string) || 10;

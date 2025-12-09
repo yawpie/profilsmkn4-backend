@@ -14,11 +14,14 @@ router.post(
   checkAccessWithCookie,
   async (req: AuthRequest<AnnouncementsRequestBody>, res: Response) => {
     try {
-      const { title, content, date, status } = req.body;
-      if (!title || !content || !date || !status) {
-        throw new BadRequestError("Title are required");
+      const { title, content, status } = req.body;
+      let date = req.body.date ? new Date(req.body.date) : new Date();
+      // console.log(date);
+      
+      if (!title || !content || !status) {
+        throw new BadRequestError("Missing required fields");
       }
-
+      
       const create = await handlePrismaWrite(() =>
         prisma.announcements.create({
           data: {

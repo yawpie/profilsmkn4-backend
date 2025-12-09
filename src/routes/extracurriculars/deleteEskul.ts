@@ -11,11 +11,11 @@ import { deleteImage } from "../../utils/imageServiceHandler";
 const router = Router();
 
 router.delete(
-  "/:id",
+  "/",
   checkAccessWithCookie,
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id } = req.params;
+      const id = req.query.id;
       if (!id) {
         throw new BadRequestError("Invalid id");
       }

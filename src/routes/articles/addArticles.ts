@@ -3,13 +3,14 @@ import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { AuthRequest } from "../../types/auth";
 import { prisma } from "../../config/database/prisma";
 import { upload } from "../../middleware/uploadMiddleware";
-import { bucket } from "../../config/firebase/firebase";
+// import { bucket } from "../../config/firebase/firebase";
 import { checkCategoryId } from "../../middleware/checkCategoryIdMiddleware";
 import { ArticlesBodyRequest, ExtraCategoryField } from "../../types/category";
-import { BadRequestError } from "../../errorHandler/responseError";
+// import { BadRequestError } from "../../errorHandler/responseError";
 import { sendData, sendError } from "../../utils/send";
-import { uploadImageToFirebase } from "../../utils/firebaseHandler";
+// import { uploadImageToFirebase } from "../../utils/firebaseHandler";
 import { uploadImage } from "../../utils/imageServiceHandler";
+import { handlePrismaWrite } from "../../utils/handlePrismaWrite";
 
 const router: Router = Router();
 
@@ -17,7 +18,7 @@ router.post(
   "/",
   checkAccessWithCookie,
   upload.single("image"),
-  checkCategoryId,
+  // checkCategoryId,
   async (
     req: AuthRequest<ArticlesBodyRequest, any, any, ExtraCategoryField>,
     res: Response
@@ -53,8 +54,8 @@ router.post(
         imageUrl = await uploadImage(file, "articles");
       }
 
-
-      const article = await prisma.articles.create({
+      const article = await handlePrismaWrite(()=>
+        prisma.articles.create({
         data: {
           title,
           content,
@@ -64,7 +65,8 @@ router.post(
           slug: title.toLowerCase().replace(/ /g, "-"),
           status: req.body.status,
         },
-      });
+      }))
+      
       // res.json(GeneralResponse.responseWithData(article));
       sendData(res, article);
     } catch (error) {

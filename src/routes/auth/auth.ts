@@ -15,7 +15,7 @@ import { hashPassword } from "../../middleware/hashMiddleware";
 const router = Router();
 router.post("", async (req: Request, res: Response) => {
   const { username, password } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
 
   try {
     if (!username || !password) {

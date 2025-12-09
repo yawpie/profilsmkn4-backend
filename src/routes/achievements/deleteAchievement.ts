@@ -1,11 +1,10 @@
 import { Router, Response } from "express";
-import { checkAccessWithCookie } from "../../middleware/authMiddleware";
-import { AuthRequest } from "../../types/auth";
-import { handlePrismaWrite } from "../../utils/handlePrismaWrite";
 import { prisma } from "../../config/database/prisma";
+import { AuthRequest } from "../../types/auth";
+import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { sendData, sendError } from "../../utils/send";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
-import { deleteFirebaseFile } from "../../utils/firebaseHandler";
+import { deleteImage } from "../../utils/imageServiceHandler";
 import { BadRequestError } from "../../errorHandler/responseError";
 
 const router = Router();
@@ -14,19 +13,30 @@ router.delete(
   "/",
   checkAccessWithCookie,
   async (req: AuthRequest, res: Response) => {
+    const id = req.query.id;
+
     try {
-      const id = req.query.id;
       if (!id) {
         throw new BadRequestError("Invalid id");
       }
 
-      const hapus = await handlePrismaWrite(() =>
-        prisma.announcements.delete({
-          where: {
-            id,
-          },
+      const imageUrlToDelete = await handlePrismaNotFound(() =>
+        prisma.achievements.findUnique({
+          where: { id },
+          select: { image_url: true },
         })
       );
+
+      if (imageUrlToDelete.image_url) {
+        deleteImage(imageUrlToDelete.image_url);
+      }
+
+      const deleted = await handlePrismaNotFound(() =>
+        prisma.achievements.delete({
+          where: { id },
+        })
+      );
+
       sendData(res);
     } catch (error) {
       sendError(res, error);

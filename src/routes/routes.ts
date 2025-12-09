@@ -4,7 +4,12 @@ import articlesRouter from "./articles/articlesRouter";
 import teacherRouter from "./teacher/teacherRouter";
 import categoryRoute from "./category/categoryRouter";
 import facilitiesRouter from "./facilities/facilityRouter";
+import announcementRouter from "./announcements/announcementsRouter";
+import majorsRouter from "./majors/majorRouter";
 import extraRouter from "./extracurriculars/eskulRouter";
+import slidesRouter from "./slides/slidesRouter";
+import achievementsRouter from "./achievements/achievementsRouter";
+import totalsRouter from "./stats/totals";
 import { sendData } from "../utils/send";
 
 const routes = Router();
@@ -12,10 +17,14 @@ const routes = Router();
 routes.use("/", authRoute);
 routes.use("/category", categoryRoute);
 routes.use("/articles", articlesRouter);
-routes.use("/teacher", teacherRouter);
+routes.use("/teachers", teacherRouter);
 routes.use("/facilities", facilitiesRouter);
 routes.use("/extracurriculars", extraRouter);
-
+routes.use("/announcement", announcementRouter);
+routes.use("/majors", majorsRouter);
+routes.use("/slides", slidesRouter);
+routes.use("/achievements", achievementsRouter);
+routes.use("/stats", totalsRouter);
 
 routes.get("/", (req, res) => {
   sendData(res);

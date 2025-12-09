@@ -1,12 +1,8 @@
-import { Router, Request, Response } from "express";
+import { Router, Response } from "express";
 import { prisma } from "../../config/database/prisma";
 import { AuthRequest } from "../../types/auth";
 import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { upload } from "../../middleware/uploadMiddleware";
-// import GeneralResponse from "../../utils/generalResponse";
-import { ArticlesBodyRequest, ExtraCategoryField } from "../../types/category";
-import { checkCategoryId } from "../../middleware/checkCategoryIdMiddleware";
-// import { bucket } from "../../config/firebase/firebase";
 import { sendData, sendError } from "../../utils/send";
 import {
   BadRequestError,
@@ -18,7 +14,7 @@ import { handlePrismaNotFound } from "../../utils/handleNotFound";
 const router = Router();
 
 router.put(
-  "/:id",
+  "/",
   checkAccessWithCookie,
   upload.single("image"),
   async (req: AuthRequest, res: Response) => {
@@ -26,7 +22,7 @@ router.put(
       if (typeof req.body === "undefined") {
         throw new BadRequestError("Kenapa ga kirim apa apa???");
       }
-      const articleId = req.params.id;
+      const articleId = req.query.id;
       const { title, content } = req.body;
       const category_id = req.body.category_id;
       const file = req.file;
