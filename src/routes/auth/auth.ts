@@ -53,21 +53,22 @@ router.post("", async (req: Request, res: Response) => {
     }
     const refreshToken = generateRefreshToken({ adminId: admin.admin_id });
     const accessToken = generateToken({ adminId: admin.admin_id }, "15m");
-    // res.status(200).json(GeneralResponse.defaultResponse().setData({ token: token }));
+
     res
-    .status(200)
+      .status(200)
       .cookie("refresh_token", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .cookie("access_token", accessToken, {
         httpOnly: true,
-        secure:  process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
+        maxAge: 15 * 60 * 1000, // 15 minutes
       })
-      .json({ message: "success", access_token: accessToken })
-    // sendData(res, { token }, "success");
+      .json({ message: "Login successful", access_token: accessToken });
   } catch (err: any) {
     // console.log(err);
     // res.json(GeneralResponse.unexpectedError(err));
