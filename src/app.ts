@@ -6,7 +6,7 @@ import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 // import addSlide from "./routes/slides/addSlide";
 import { multerErrorHandler } from "./errorHandler/multerError";
-import path from "path/win32";
+import path from "path";
 
 const app = express();
 const swaggerDocument = YAML.load(path.join(__dirname, "docs-openapi.yaml"));
@@ -14,7 +14,8 @@ const swaggerDocument = YAML.load(path.join(__dirname, "docs-openapi.yaml"));
 
 const allowedOrigins = [
   "http://localhost:3001",
-  "http://localhost:3000", // local dev
+  "http://localhost:3000",
+  "http://localhost:4000" // local dev
   // /^http:\/\/192\.168\.1\.\d{1,3}:3000$/, // all IPs in 192.168.236.x:3000 range
 ];
 app.use(
