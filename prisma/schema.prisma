@@ -30,7 +30,7 @@ model admin {
 
 model articles {
   articles_id    String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  content        String          @db.VarChar(255)
+  content        String          @db.Text
   image_url      String?         @db.VarChar(255)
   published_date DateTime?       @default(now()) @db.Date
   admin_id       String?         @db.Uuid
