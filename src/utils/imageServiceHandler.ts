@@ -3,7 +3,7 @@ import path from "path";
 import sharp from "sharp";
 // import FormData from "form-data";
 // import fetch from "node-fetch";
-const UPLOAD_ENDPOINT = "http://localhost:4000/images"; // change to your endpoint
+const UPLOAD_ENDPOINT = `${process.env.UPLOAD_ENDPOINT}`; // change to your endpoint
 
 /**
  * Upload an image to the backend image controller
