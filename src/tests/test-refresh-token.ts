@@ -3,7 +3,7 @@ import {
   generateRefreshToken,
   verifyJwt,
   verifyRefreshToken,
-} from "../src/utils/jwt";
+} from "../utils/jwt";
 
 console.log("🧪 Testing Refresh Token System\n");
 
