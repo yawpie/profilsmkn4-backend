@@ -10,7 +10,7 @@ const router = Router();
 
 router.get(
   "/",
-  checkAccessWithCookie,
+  // checkAccessWithCookie,
   async (req: AuthRequest, res: Response) => {
     const eskulName = req.query.name as string;
 
@@ -29,6 +29,21 @@ router.get(
           "Extracurricular not found"
         );
         sendData(res, eskul);
+        return;
+      }
+
+      const id = req.query.id as string;
+      if (id) {
+        const major = await handlePrismaNotFound(
+          () =>
+            prisma.majors.findMany({
+              where: {
+                id: id,
+              },
+            }),
+          "Major not found"
+        );
+        sendData(res, major);
         return;
       }
 

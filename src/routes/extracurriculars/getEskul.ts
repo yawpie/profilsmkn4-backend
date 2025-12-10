@@ -10,21 +10,22 @@ const router = Router();
 
 router.get(
   "/",
-  checkAccessWithCookie,
+  // checkAccessWithCookie,
   async (req: AuthRequest, res: Response) => {
-    const eskulName = req.query.name as string;
+    const id = req.query.id as string;
 
     try {
-      if (eskulName) {
+      if (id) {
         const eskul = await handlePrismaNotFound(
           () =>
-            prisma.extracurriculars.findMany({
+            prisma.extracurriculars.findUnique({
               where: {
-                name: {
-                  contains: eskulName,
-                  mode: "insensitive",
-                },
+                id: id,
               },
+              include: {
+                guru: { select: { name: true } },
+              },
+              omit: { guru_id: true },
             }),
           "Extracurricular not found"
         );
@@ -42,6 +43,10 @@ router.get(
           prisma.extracurriculars.findMany({
             skip,
             take,
+            include: {
+              guru: { select: { name: true } },
+            },
+            omit: { guru_id: true },
           }),
         // count function
         () => prisma.extracurriculars.count(),

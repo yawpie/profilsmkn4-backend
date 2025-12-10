@@ -16,12 +16,12 @@ import { deleteImage, uploadImage } from "../../utils/imageServiceHandler";
 const router = Router();
 
 router.put(
-  "/:id",
+  "/",
   checkAccessWithCookie,
   upload.single("image"),
   async (req: AuthRequest<ExtraCurricularsRequestBody>, res: Response) => {
-    const id = req.params.id;
-    const { name, description } = req.body;
+    const id = req.query.id;
+    const { name, description, guru_id } = req.body;
     // if (!name || !jabatan) {
     //     res.status(404).json(GeneralResponse.responseWithError("nama dan jabatan kosong!"));
     //     return;
@@ -70,6 +70,7 @@ router.put(
               name,
               description,
               image_url: imageUrl,
+              guru_id,
             },
           }),
         "Extracurricular not found"

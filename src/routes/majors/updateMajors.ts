@@ -17,11 +17,11 @@ import { deleteImage, uploadImage } from "../../utils/imageServiceHandler";
 const router = Router();
 
 router.put(
-  "/:id",
+  "/",
   checkAccessWithCookie,
   upload.single("image"),
   async (req: AuthRequest<MajorsRequestBody>, res: Response) => {
-    const id = req.params.id;
+    const id = req.query.id as string;
     const { name, description } = req.body;
     // if (!name || !jabatan) {
     //     res.status(404).json(GeneralResponse.responseWithError("nama dan jabatan kosong!"));

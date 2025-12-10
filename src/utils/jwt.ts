@@ -27,8 +27,17 @@ export function generateRefreshToken(payload: JwtPayload): string {
 export function verifyJwt(token: string): JwtPayload | null {
   try {
     const result = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    console.log(result);
+    return result;
+  } catch (err) {
+    return null;
+  }
+}
 
+export function verifyRefreshToken(token: string): JwtPayload | null {
+  try {
+    const REFRESH_SECRET =
+      process.env.REFRESH_TOKEN_SECRET || "defaultrefreshsecret";
+    const result = jwt.verify(token, REFRESH_SECRET) as JwtPayload;
     return result;
   } catch (err) {
     return null;

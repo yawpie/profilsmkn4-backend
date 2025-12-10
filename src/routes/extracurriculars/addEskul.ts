@@ -20,7 +20,7 @@ router.post(
   upload.single("image"),
   async (req: AuthRequest<ExtraCurricularsRequestBody>, res: Response) => {
     try {
-      const { name, description } = req.body;
+      const { name, description, guru_id } = req.body;
       if (!name) {
         throw new BadRequestError("Name are required");
       }
@@ -36,6 +36,7 @@ router.post(
             name,
             description,
             image_url: imageUrl,
+            guru_id,
           },
         })
       );

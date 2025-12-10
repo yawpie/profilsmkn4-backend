@@ -1,5 +1,5 @@
 import {Router} from "express";
-import add from "./addAnnouncementsj";
+import add from "./addAnnouncements";
 import get from "./getAnnouncements";
 import remove from "./deleteAnnouncements";
 import update from "./updateAnnouncements";

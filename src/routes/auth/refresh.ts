@@ -1,42 +1,43 @@
 import { Router, Request, Response } from "express";
-// import { hashPassword } from '../../middleware/hashMiddleware';
 import { prisma } from "../../config/database/prisma";
-// import GeneralResponse from '../../utils/generalResponse';
 import {
   generateRefreshToken,
   generateToken,
-  verifyJwt,
+  verifyRefreshToken,
 } from "../../utils/jwt";
-import bcrypt from "bcrypt";
-import { sendData, sendError } from "../../utils/send";
+import { sendError } from "../../utils/send";
 import {
   BadRequestError,
-  NotFoundError,
+  UnauthorizedError,
 } from "../../errorHandler/responseError";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
-import { hashPassword } from "../../middleware/hashMiddleware";
 
 const router = Router();
 
 router.post("", async (req: Request, res: Response) => {
   const token = req.cookies?.refresh_token;
-  console.log(token);
 
   if (!token) {
     return sendError(res, new BadRequestError("Refresh token is required"));
   }
 
   try {
-    const payload = verifyJwt(token);
+    // Verify refresh token with dedicated function
+    const payload = verifyRefreshToken(token);
     if (!payload) {
-      return sendError(res, new BadRequestError("Invalid refresh token"));
+      return sendError(
+        res,
+        new UnauthorizedError("Invalid or expired refresh token")
+      );
     }
 
+    // Verify admin still exists
     const admin = await handlePrismaNotFound(
       () => prisma.admin.findUnique({ where: { admin_id: payload.adminId } }),
       "Admin not found"
     );
 
+    // Generate new tokens (token rotation for security)
     const newAccessToken = generateToken({ adminId: admin.admin_id }, "15m");
     const newRefreshToken = generateRefreshToken({ adminId: admin.admin_id });
 
@@ -44,17 +45,23 @@ router.post("", async (req: Request, res: Response) => {
       .status(200)
       .cookie("refresh_token", newRefreshToken, {
         httpOnly: true,
-        secure:  process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .cookie("access_token", newAccessToken, {
         httpOnly: true,
-        secure:  process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
+        maxAge: 15 * 60 * 1000, // 15 minutes
       })
-      .json({ message: "success", access_token: newAccessToken });
+      .json({
+        message: "Token refreshed successfully",
+        access_token: newAccessToken,
+      });
   } catch (err: any) {
     sendError(res, err);
   }
 });
+
 export default router;

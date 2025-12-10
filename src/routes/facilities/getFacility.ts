@@ -12,18 +12,15 @@ router.get(
   "/",
   
   async (req: AuthRequest, res: Response) => {
-    const facilityName = req.query.name as string;
+    const id = req.query.id as string;
 
     try {
-      if (facilityName) {
+      if (id) {
         const guru = await handlePrismaNotFound(
           () =>
-            prisma.facilities.findMany({
+            prisma.facilities.findUnique({
               where: {
-                name: {
-                  contains: facilityName,
-                  mode: "insensitive",
-                },
+                id: id,
               },
             }),
           "facility not found"
