@@ -52,7 +52,7 @@ model category {
   articles    articles[]
 }
 
-model guru{
+model guru {
   guru_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name String @db.VarChar(255)
   jabatan String @db.VarChar(255)
@@ -66,20 +66,20 @@ model facilities{
   id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name String @db.VarChar(255)
   image_url String? @db.VarChar(255)
-  description String? @db.VarChar(255)
+  description String? @db.Text
   location String? @db.VarChar(255)
   status status_facilities @default(TERSEDIA) 
 }
 model majors{
   id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name String @db.VarChar(255)
-  description String? @db.VarChar(255)
+  description String? @db.Text
   image_url String? @db.VarChar(255)
 }
 model announcements{
   id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   title String @db.VarChar(255)
-  content String @db.VarChar(255)
+  content String @db.Text
   date DateTime @db.Date @default(now())
   image_url String? @db.VarChar(255)
   status status @default(DRAFT)
@@ -89,7 +89,7 @@ model extracurriculars{
   id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name String @db.VarChar(255)
   image_url String? @db.VarChar(255)
-  description String? @db.VarChar(255)
+  description String? @db.Text
   guru_id String? @db.Uuid
   guru guru? @relation(fields: [guru_id], references: [guru_id], onUpdate: NoAction, map: "fk_guru")
 
