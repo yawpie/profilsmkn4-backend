@@ -13,11 +13,27 @@ const router = Router();
 
 router.get("/", async (req: AuthRequest, res: Response) => {
   const guruName = req.query.nama as string;
+  const page = parseInt(req.query.page as string) || 1;
+  const pageSize = parseInt(req.query.limit as string) || 10;
+  const skip = (page - 1) * pageSize;
 
   try {
     if (guruName) {
-      const guru = await handlePrismaNotFound(
-        () =>
+      // const guru = await handlePrismaNotFound(
+      //   () =>
+      //     prisma.guru.findMany({
+      //       where: {
+      //         name: {
+      //           contains: guruName,
+      //           mode: "insensitive",
+      //         },
+      //       },
+      //     }),
+      //   "guru not found"
+      // );
+      const guru = await paginate(
+        // query function (receives skip and take)
+        (skip, take) =>
           prisma.guru.findMany({
             where: {
               name: {
@@ -25,10 +41,24 @@ router.get("/", async (req: AuthRequest, res: Response) => {
                 mode: "insensitive",
               },
             },
+            skip,
+            take,
           }),
-        "guru not found"
+        // count function
+        () =>
+          prisma.guru.count({
+            where: {
+              name: {
+                contains: guruName,
+                mode: "insensitive",
+              },
+            },
+          }),
+        // pagination params
+        { page, pageSize }
       );
-      sendData(res, guru);
+      const responseBody = { data: guru };
+      sendData(res, responseBody);
       return;
     }
     const guruId = req.query.id as string;
@@ -46,9 +76,25 @@ router.get("/", async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const page = parseInt(req.query.page as string) || 1;
-    const pageSize = parseInt(req.query.limit as string) || 10;
-    const skip = (page - 1) * pageSize;
+    const majorId = req.query.major_id as string;
+    if (majorId) {
+      const guru = await paginate(
+        // query function (receives skip and take)
+        (skip, take) =>
+          prisma.guru.findMany({
+            where: { major_id: majorId },
+            skip,
+            take,
+          }),
+        // count function
+        () => prisma.guru.count({ where: { major_id: majorId } }),
+        // pagination params
+        { page, pageSize }
+      );
+
+      sendData(res, guru);
+      return;
+    }
 
     const result = await paginate(
       // query function (receives skip and take)

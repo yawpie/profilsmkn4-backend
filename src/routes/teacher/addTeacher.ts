@@ -8,6 +8,7 @@ import { BadRequestError } from "../../errorHandler/responseError";
 import { upload } from "../../middleware/uploadMiddleware";
 import { uploadImageToFirebase } from "../../utils/firebaseHandler";
 import { uploadImage } from "../../utils/imageServiceHandler";
+import { handlePrismaWrite } from "../../utils/handlePrismaWrite";
 
 const router = Router();
 
@@ -16,10 +17,10 @@ router.post(
   checkAccessWithCookie,
   upload.single("image"),
   async (req: AuthRequest<TeacherRequestBody>, res: Response) => {
-    const { name, jabatan, nip } = req.body;
+    const { name, jabatan, nip, major_id, mata_pelajaran } = req.body;
     const imageFile = req.file;
-    console.log("hello");
-    
+    // console.log("hello");
+
     try {
       let imageUrl: string | null = null;
       if (imageFile) {
@@ -28,14 +29,30 @@ router.post(
       if (!name || !jabatan) {
         throw new BadRequestError("nama dan jabatan kosong");
       }
-      const teacher = await prisma.guru.create({
-        data: {
-          name,
-          jabatan,
-          image_url: imageUrl,
-          nip
-        },
-      });
+
+      const teacher = await handlePrismaWrite(() =>
+        prisma.guru.create({
+          data: {
+            name,
+            jabatan,
+            image_url: imageUrl,
+            nip,
+            major: { connect: { id: major_id ? major_id : undefined } },
+            mata_pelajaran,
+          },
+        })
+      );
+
+      // const teacher = await prisma.guru.create({
+      //   data: {
+      //     name,
+      //     jabatan,
+      //     image_url: imageUrl,
+      //     nip,
+      //     major: { connect: { id: major_id ? major_id : undefined } },
+      //     mata_pelajaran,
+      //   },
+      // });
       sendData(res, teacher);
     } catch (error) {
       sendError(res, error);

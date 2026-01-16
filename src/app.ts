@@ -16,32 +16,38 @@ const allowedOrigins = [
   "http://localhost:3001",
   "http://localhost:3000",
   "http://localhost:4000",
-  "https://smkn4mtr.sch.id" // local dev
-  // /^http:\/\/192\.168\.1\.\d{1,3}:3000$/, // all IPs in 192.168.236.x:3000 range
+  "https://smkn4mtr.sch.id", // local dev
+  // /^http:\/\/192\.168\.1\.\d{1,3}:3000$/, // all IPs in 192.168.1.x:3000 range
 ];
+
+const delay = (ms: any) => (req: any, res: Response, next: any) => {
+  setTimeout(next, ms);
+};
+
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true); // allow non-browser tools like Postman
-
+      
       // Match string or RegExp patterns
       const isAllowed = allowedOrigins.some((o) =>
-         o === origin 
-      );
+        o === origin 
+    );
 
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS blocked for origin: ${origin}`));
-      }
-    },
-    credentials: true,
-  })
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    }
+  },
+  credentials: true,
+})
 );
 // app.use("/slides", addSlide);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+// app.use(delay(1000)); // ! Simulate network delay for testing pls delete for production
 app.use("/", routes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(multerErrorHandler);

@@ -8,12 +8,12 @@ import { prisma } from "../../config/database/prisma";
 import { handlePrismaNotFound } from "../../utils/handleNotFound";
 import { checkAccessWithCookie } from "../../middleware/authMiddleware";
 import { sendData, sendError } from "../../utils/send";
-import {
-  deleteFirebaseFile,
-  uploadImageToFirebase,
-} from "../../utils/firebaseHandler";
 import { upload } from "../../middleware/uploadMiddleware";
+import { FacilitiesRequestBody } from "../../types/facilities";
+import { ExtraCurricularsRequestBody } from "../../types/extracurriculars";
+import { MajorsRequestBody } from "../../types/majors";
 import { deleteImage, uploadImage } from "../../utils/imageServiceHandler";
+import { BadRequestError } from "../../errorHandler/responseError";
 
 const router = Router();
 
@@ -21,22 +21,21 @@ router.put(
   "/",
   checkAccessWithCookie,
   upload.single("image"),
-  async (req: AuthRequest<TeacherRequestBody>, res: Response) => {
-    const guru_id = req.query.id as string;
-    const { name, jabatan, mata_pelajaran, major_id, nip } = req.body;
-    // if (!name || !jabatan) {
-    //     res.status(404).json(GeneralResponse.responseWithError("nama dan jabatan kosong!"));
-    //     return;
-    // }
+  async (req: AuthRequest, res: Response) => {
+    const id = req.query.id as string;
+    const { title } = req.body;
+    if (!title) {
+      throw new BadRequestError("title not provided");
+    }
     let imageUrl: string | null = null;
     const imageFile = req.file;
     try {
       if (imageFile) {
         // first delete the old file
         const imageUrlToDelete = await handlePrismaNotFound(() =>
-          prisma.guru.findUnique({
+          prisma.major_gallery_images.findUnique({
             where: {
-              guru_id,
+              id,
             },
             select: {
               image_url: true,
@@ -47,12 +46,12 @@ router.put(
           deleteImage(imageUrlToDelete.image_url);
         }
         // after deleting, upload the new file
-        imageUrl = (await uploadImage(imageFile, "teachers")) as string | null;
+        imageUrl = await uploadImage(imageFile, "majors_gallery");
       } else {
         const findImageUrl = await handlePrismaNotFound(() =>
-          prisma.guru.findUnique({
+          prisma.major_gallery_images.findUnique({
             where: {
-              guru_id,
+              id,
             },
             select: {
               image_url: true,
@@ -64,20 +63,16 @@ router.put(
 
       const updated = await handlePrismaNotFound(
         () =>
-          prisma.guru.update({
+          prisma.major_gallery_images.update({
             where: {
-              guru_id,
+              id,
             },
             data: {
-              name,
-              jabatan,
+              title,
               image_url: imageUrl,
-              major_id: major_id ? major_id : null,
-              mata_pelajaran: mata_pelajaran ? mata_pelajaran : null,
-              nip: nip ? nip : null,
             },
           }),
-        "Teacher not found"
+        "Extracurricular not found"
       );
       // res.json(GeneralResponse.responseWithData(updated));
       sendData(res, updated);

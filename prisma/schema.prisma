@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -11,7 +11,7 @@ datasource db {
 
 model admin {
   admin_id        String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  username        String     @db.VarChar(255) @unique
+  username        String     @unique @db.VarChar(255)
   hashed_password String     @db.VarChar(255)
   // refresh_tokens  refresh_tokens[]
   articles        articles[]
@@ -24,22 +24,21 @@ model admin {
 //   expired_at DateTime @db.Timestamp(6)
 //   admin      admin?   @relation(fields: [admin_id], references: [admin_id], onUpdate: NoAction, map: "fk_refresh_token_admin")
 
-
 //   @@index([admin_id], map: "idx_refresh_tokens_admin")
 // }
 
 model articles {
-  articles_id    String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  content        String          @db.Text
-  image_url      String?         @db.VarChar(255)
-  published_date DateTime?       @default(now()) @db.Date
-  admin_id       String?         @db.Uuid
-  category_id    String?         @db.Uuid
-  title          String          @db.VarChar(255)
-  slug String? @db.VarChar(255) @unique
-  status         status?         @default(DRAFT)
-  admin          admin?          @relation(fields: [admin_id], references: [admin_id], onUpdate: NoAction, map: "fk_admin")
-  category       category?       @relation(fields: [category_id], references: [category_id], onUpdate: NoAction, map: "fk_category")
+  articles_id    String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  content        String    @db.Text
+  image_url      String?   @db.VarChar(255)
+  published_date DateTime? @default(now()) @db.Date
+  admin_id       String?   @db.Uuid
+  category_id    String?   @db.Uuid
+  title          String    @db.VarChar(255)
+  slug           String?   @unique @db.VarChar(255)
+  status         status?   @default(DRAFT)
+  admin          admin?    @relation(fields: [admin_id], references: [admin_id], onUpdate: NoAction, map: "fk_admin")
+  category       category? @relation(fields: [category_id], references: [category_id], onUpdate: NoAction, map: "fk_category")
 
   @@index([admin_id], map: "idx_articles_admin")
   @@index([category_id], map: "idx_articles_category")
@@ -48,83 +47,96 @@ model articles {
 
 model category {
   category_id String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name        String     @db.VarChar(255) @unique
+  name        String     @unique @db.VarChar(255)
   articles    articles[]
 }
 
 model guru {
-  guru_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name String @db.VarChar(255)
-  jabatan String @db.VarChar(255)
-  image_url String? @db.VarChar(255)
-  nip String? @db.VarChar(255)
+  guru_id          String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name             String             @db.VarChar(255)
+  jabatan          String             @db.VarChar(255)
+  image_url        String?            @db.VarChar(255)
+  nip              String?            @db.VarChar(255)
+  mata_pelajaran   String?            @db.VarChar(255)
   extracurriculars extracurriculars[]
-
+  major_id         String?            @db.Uuid
+  major            majors?            @relation(fields: [major_id], references: [id], onUpdate: NoAction, map: "fk_major")
 }
 
-model facilities{
-  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name String @db.VarChar(255)
+model facilities {
+  id          String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String            @db.VarChar(255)
+  image_url   String?           @db.VarChar(255)
+  description String?           @db.Text
+  location    String?           @db.VarChar(255)
+  status      status_facilities @default(TERSEDIA)
+}
+
+model majors {
+  id                   String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                 String                 @db.VarChar(255)
+  description          String?                @db.Text
+  image_url            String?                @db.VarChar(255)
+  guru                 guru[]
+  major_gallery_images major_gallery_images[]
+}
+
+model major_gallery_images {
+  id        String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  major_id  String  @db.Uuid
+  title     String? @db.VarChar(255)
   image_url String? @db.VarChar(255)
+  major     majors  @relation(fields: [major_id], references: [id], onUpdate: Cascade, map: "fk_major_gallery_images")
+}
+
+model announcements {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title     String   @db.VarChar(255)
+  content   String   @db.Text
+  date      DateTime @default(now()) @db.Date
+  image_url String?  @db.VarChar(255)
+  status    status   @default(DRAFT)
+}
+
+model extracurriculars {
+  id          String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String  @db.VarChar(255)
+  image_url   String? @db.VarChar(255)
   description String? @db.Text
-  location String? @db.VarChar(255)
-  status status_facilities @default(TERSEDIA) 
-}
-model majors{
-  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name String @db.VarChar(255)
-  description String? @db.Text
-  image_url String? @db.VarChar(255)
-}
-model announcements{
-  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  title String @db.VarChar(255)
-  content String @db.Text
-  date DateTime @db.Date @default(now())
-  image_url String? @db.VarChar(255)
-  status status @default(DRAFT)
+  guru_id     String? @db.Uuid
+  guru        guru?   @relation(fields: [guru_id], references: [guru_id], onUpdate: NoAction, map: "fk_guru")
 }
 
-model extracurriculars{
-  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name String @db.VarChar(255)
-  image_url String? @db.VarChar(255)
-  description String? @db.Text
-  guru_id String? @db.Uuid
-  guru guru? @relation(fields: [guru_id], references: [guru_id], onUpdate: NoAction, map: "fk_guru")
-
+model slides {
+  id           String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  image_url    String? @db.VarChar(255)
+  alt          String  @db.VarChar(255)
+  title        String  @db.VarChar(255)
+  subtitle     String  @db.VarChar(255)
+  description  String  @db.VarChar(255)
+  gradientFrom String  @db.VarChar(255)
+  gradientTo   String  @db.VarChar(255)
+  order        Int
+  isActive     Boolean @default(true)
 }
 
-model slides{
-  id            String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  image_url     String?  @db.VarChar(255)
-  alt           String  @db.VarChar(255)
-  title         String  @db.VarChar(255)
-  subtitle      String  @db.VarChar(255)
-  description   String  @db.VarChar(255)
-  gradientFrom  String  @db.VarChar(255)
-  gradientTo    String  @db.VarChar(255)
-  order         Int
-  isActive      Boolean @default(true)
+model achievements {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title       String   @db.VarChar(255)
+  publishDate DateTime @default(now())
+  description String   @db.Text
+  content     String   @db.Text
+  image_url   String?  @db.VarChar(255)
 }
 
-model achievements{
-  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  title         String   @db.VarChar(255)
-  publishDate   DateTime @default(now())
-  description   String   @db.Text
-  content       String   @db.Text
-  image_url     String?  @db.VarChar(255)
-}
-
-enum status_facilities{
+enum status_facilities {
   TERSEDIA
   PERBAIKAN
   DIGUNAKAN
   TIDAK_TERSEDIA
 }
 
-enum status{
+enum status {
   DRAFT
   PUBLISHED
 }
