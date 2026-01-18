@@ -21,7 +21,7 @@ export async function checkCategoryId(req: AuthRequest<ArticlesBodyRequest, any,
             categoryName = "default";
         }
 
-        const category = await prisma.category.findFirst({
+        const category = await prisma.tags.findFirst({
             where: {
                 name: {
                     mode: 'insensitive',
@@ -34,7 +34,7 @@ export async function checkCategoryId(req: AuthRequest<ArticlesBodyRequest, any,
             throw new NotFoundError("Category not found, please make it first");
 
         }
-        req.category_id = category.category_id
+        req.category_id = category.id
         next();
 
     } catch (error) {

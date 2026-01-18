@@ -28,27 +28,40 @@ model admin {
 // }
 
 model articles {
-  articles_id    String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  content        String    @db.Text
-  image_url      String?   @db.VarChar(255)
-  published_date DateTime? @default(now()) @db.Date
-  admin_id       String?   @db.Uuid
-  category_id    String?   @db.Uuid
-  title          String    @db.VarChar(255)
-  slug           String?   @unique @db.VarChar(255)
-  status         status?   @default(DRAFT)
-  admin          admin?    @relation(fields: [admin_id], references: [admin_id], onUpdate: NoAction, map: "fk_admin")
-  category       category? @relation(fields: [category_id], references: [category_id], onUpdate: NoAction, map: "fk_category")
+  articles_id    String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  content        String          @db.Text
+  image_url      String?         @db.VarChar(255)
+  published_date DateTime?       @default(now()) @db.Date
+  admin_id       String?         @db.Uuid
+  // category_id    String?   @db.Uuid
+  title          String          @db.VarChar(255)
+  slug           String?         @unique @db.VarChar(255)
+  status         status?         @default(DRAFT)
+  admin          admin?          @relation(fields: [admin_id], references: [admin_id], onUpdate: NoAction, map: "fk_admin")
+  articlesTags   articles_tags[]
+  tagsId         String?         @db.Uuid
 
   @@index([admin_id], map: "idx_articles_admin")
-  @@index([category_id], map: "idx_articles_category")
   @@index([published_date], map: "idx_articles_published_date")
 }
 
-model category {
-  category_id String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name        String     @unique @db.VarChar(255)
-  articles    articles[]
+model articles_tags {
+  articles_id String @db.Uuid
+  tag_id      String @db.Uuid
+
+  articles articles @relation(fields: [articles_id], references: [articles_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_articles_tags_articles")
+  tags     tags     @relation(fields: [tag_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_articles_tags_tags")
+
+  @@id([articles_id, tag_id], map: "pk_articles_tags")
+  @@index([tag_id], map: "idx_articles_tags_tag")
+}
+
+model tags {
+  id   String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name String @db.VarChar(255)
+  slug String @unique @db.VarChar(255)
+
+  articlesTags articles_tags[]
 }
 
 model guru {

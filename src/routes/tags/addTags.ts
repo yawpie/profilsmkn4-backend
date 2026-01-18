@@ -22,9 +22,10 @@ router.post(
       }
 
       const createCategory = await handlePrismaWrite(() =>
-        prisma.category.create({
+        prisma.tags.create({
           data: {
             name: newCategory,
+            slug: newCategory.toLowerCase().replace(/ /g, "-"),
           },
         })
       );

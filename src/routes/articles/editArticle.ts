@@ -80,7 +80,7 @@ router.put(
           title,
           content,
           image_url: imageUrl,
-          category_id: category_id,
+          // TODO Tags harus bisa diedit
         },
       });
       // res.json(GeneralResponse.responseWithData(updatedArticle));

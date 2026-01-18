@@ -87,9 +87,9 @@ router.get("/", async (req: Request, res: Response) => {
               articles_id: id,
             },include: {
               admin: { select: { username: true } },
-              category: { select: { name: true } },
+              articlesTags: { include: { tags: true } }
             },
-            omit: { admin_id: true, category_id: true },
+            omit: { admin_id: true },
           }),
         "Article not found"
       );
@@ -114,7 +114,7 @@ router.get("/", async (req: Request, res: Response) => {
             image_url: true,
             published_date: true,
             admin: { select: { username: true } },
-            category: { select: { name: true } },
+            articlesTags: { include: { tags: true } },
             title: true,
           },
         }),

@@ -2,7 +2,7 @@ import { Router } from "express";
 import authRoute from "./auth/authRouter";
 import articlesRouter from "./articles/articlesRouter";
 import teacherRouter from "./teacher/teacherRouter";
-import categoryRoute from "./category/categoryRouter";
+import tagsRouter from "./tags/tagsRouter";
 import facilitiesRouter from "./facilities/facilityRouter";
 import announcementRouter from "./announcements/announcementsRouter";
 import majorsRouter from "./majors/majorRouter";
@@ -15,7 +15,7 @@ import { sendData } from "../utils/send";
 const routes = Router();
 
 routes.use("/", authRoute);
-routes.use("/category", categoryRoute);
+routes.use("/tags", tagsRouter);
 routes.use("/articles", articlesRouter);
 routes.use("/teachers", teacherRouter);
 routes.use("/facilities", facilitiesRouter);
