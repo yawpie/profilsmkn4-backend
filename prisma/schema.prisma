@@ -39,7 +39,7 @@ model articles {
   status         status?         @default(DRAFT)
   admin          admin?          @relation(fields: [admin_id], references: [admin_id], onUpdate: NoAction, map: "fk_admin")
   articlesTags   articles_tags[]
-  tagsId         String?         @db.Uuid
+  // !! tagsId         String?         @db.Uuid // jangan lupa npx prisma migrate dev --name ubah_ini
 
   @@index([admin_id], map: "idx_articles_admin")
   @@index([published_date], map: "idx_articles_published_date")
