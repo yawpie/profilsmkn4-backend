@@ -12,34 +12,34 @@ import { sendError } from "../utils/send";
  * @param res 
  * @param next 
  */
-export async function checkCategoryId(req: AuthRequest<ArticlesBodyRequest, any, any, ExtraCategoryField>, res: Response, next: NextFunction) {
-    let categoryName = req.body.category_name;
-    try {
-        if (!categoryName) {
-            // res.status(400).json(GeneralResponse.responseWithError("Category must be provided!"));
-            // throw new BadRequestError("Category must be provided!");
-            categoryName = "default";
-        }
+// export async function checkCategoryId(req: AuthRequest<ArticlesBodyRequest, any, any, ExtraCategoryField>, res: Response, next: NextFunction) {
+//     let categoryName = req.body;
+//     try {
+//         if (!categoryName) {
+//             // res.status(400).json(GeneralResponse.responseWithError("Category must be provided!"));
+//             // throw new BadRequestError("Category must be provided!");
+//             categoryName = "default";
+//         }
 
-        const category = await prisma.tags.findFirst({
-            where: {
-                name: {
-                    mode: 'insensitive',
-                    equals: categoryName
-                }
-            }
-        });
-        if (!category) {
-            // res.status(404).json(GeneralResponse.responseWithError("Category not found, please make it first"));
-            throw new NotFoundError("Category not found, please make it first");
+//         const category = await prisma.tags.findFirst({
+//             where: {
+//                 name: {
+//                     mode: 'insensitive',
+//                     equals: categoryName
+//                 }
+//             }
+//         });
+//         if (!category) {
+//             // res.status(404).json(GeneralResponse.responseWithError("Category not found, please make it first"));
+//             throw new NotFoundError("Category not found, please make it first");
 
-        }
-        req.category_id = category.id
-        next();
+//         }
+//         req.category_id = category.id
+//         next();
 
-    } catch (error) {
-        console.error(error);
-        // res.json(GeneralResponse.sendError(error));
-        sendError(res, error);
-    }
-}
+//     } catch (error) {
+//         console.error(error);
+//         // res.json(GeneralResponse.sendError(error));
+//         sendError(res, error);
+//     }
+// }
